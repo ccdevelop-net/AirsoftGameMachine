@@ -22,11 +22,25 @@
 //============================================================================
 
 #include <iostream>
+#include "AirsoftManager.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+  Airsoft::AirsoftManager manager = Airsoft::AirsoftManager();
+
+  if (manager.Init()) {
+    while(true) {
+      std::string str;
+      std::getline(std::cin, str);
+
+      if (str == "quit") {
+        manager.Terminate();
+        break;
+      }
+    }
+  }
+
   return 0;
 }
 

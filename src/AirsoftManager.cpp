@@ -29,17 +29,59 @@
  *******************************************************************************
  */
 
+#include <iostream>
+#include <chrono>
+#include <functional>
+
+#include <drivers/gpio.hpp>
+
 #include "AirsoftManager.hpp"
+
+
+using namespace std::chrono_literals;
 
 namespace Airsoft {
 
-AirsoftManager::AirsoftManager() {
-  // TODO Auto-generated constructor stub
+//-----------------------------------------------------------------------------
+bool AirsoftManager::Init(void) {
+  // Set flag of thread running
+  _threadRunning = true;
 
+  // Create Engine Thread
+  return ((_process = new std::thread(std::bind(&AirsoftManager::Engine, this))) != nullptr);
 }
+//-----------------------------------------------------------------------------
+void AirsoftManager::Terminate(void) {
+  // Check valid thread
+  if (_process != nullptr) {
+    // Reset thread flag
+    _threadRunning = false;
 
-AirsoftManager::~AirsoftManager() {
-  // TODO Auto-generated destructor stub
+    // Wait 1.5 second for thread terminate
+    std::this_thread::sleep_for(1500ms);
+
+    delete _process;
+    _process = nullptr;
+  }
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+void AirsoftManager::Engine(void) {
+  // Thread Variables
+  int count = 0;
+  Airsoft::Drivers::Gpio  led(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_7);
+
+  std::cout << "Engine Manager: Started." << std::endl;
+
+  led.Open(Airsoft::Drivers::Direction::Output);
+
+  while(_threadRunning) {
+    std::cout << "Count : " << count++  << std::endl;
+    std::this_thread::sleep_for(1000ms);
+  }
+
+  std::cout << "Engine Manager: Terminated." << std::endl;
 }
 
 } // namespace Airsoft

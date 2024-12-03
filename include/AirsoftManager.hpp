@@ -32,12 +32,29 @@
 #ifndef AIRSOFTMANAGER_HPP_
 #define AIRSOFTMANAGER_HPP_
 
+#include <thread>
+
 namespace Airsoft {
 
 class AirsoftManager final {
 public:
-  AirsoftManager();
-  virtual ~AirsoftManager();
+  AirsoftManager() = default;
+  virtual ~AirsoftManager() = default;
+
+public:
+  bool Init(void);
+  void Terminate(void);
+
+private:
+  // Pointer to thread
+  std::thread * _process {};
+  // Running flag for thread
+  bool _threadRunning {};
+
+private:
+  void Engine(void);
+
+
 };
 
 } // namespace Airsoft

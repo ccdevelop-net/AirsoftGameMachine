@@ -32,12 +32,69 @@
 #ifndef DRIVERS_GPIO_HPP_
 #define DRIVERS_GPIO_HPP_
 
+#include <cstdint>
+#include <cstdio>
+#include <string>
+
 namespace Airsoft::Drivers {
+
+/**
+ * @brief Define GPIO Banks
+ */
+constexpr uint32_t BANK_0 = 0;
+constexpr uint32_t BANK_1 = 1;
+constexpr uint32_t BANK_2 = 2;
+constexpr uint32_t BANK_3 = 3;
+constexpr uint32_t BANK_4 = 4;
+
+/**
+ * @brief Define GPIO Groups
+ */
+constexpr uint8_t GROUP_A = 0;
+constexpr uint8_t GROUP_B = 1;
+constexpr uint8_t GROUP_C = 2;
+constexpr uint8_t GROUP_D = 3;
+
+/**
+ * @brief Define GPIO pins ID
+ */
+constexpr uint32_t ID_0 = 0;
+constexpr uint32_t ID_1 = 1;
+constexpr uint32_t ID_2 = 2;
+constexpr uint32_t ID_3 = 3;
+constexpr uint32_t ID_4 = 4;
+constexpr uint32_t ID_5 = 5;
+constexpr uint32_t ID_6 = 6;
+constexpr uint32_t ID_7 = 7;
+
+enum class Direction {
+  Input,
+  Output
+};
 
 class Gpio final {
 public:
-  Gpio();
+  Gpio(uint32_t bank, uint8_t group, uint32_t id);
   virtual ~Gpio();
+
+public:
+  bool Open(Direction direction);
+  void Close(void);
+
+  void Set(void);
+  void Reset(void);
+  bool Read(void);
+
+private:
+  bool          _isOpen {};
+  uint32_t      _gpioPin {};
+  Direction     _direction { Direction::Input };
+  FILE  *       _value {};
+  std::string   _valuePath;
+  std::string   _catCommand;
+
+  bool          _outState {};
+
 };
 
 } // namespace Airsoft::Drivers
