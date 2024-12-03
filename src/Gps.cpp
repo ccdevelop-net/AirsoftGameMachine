@@ -1,6 +1,6 @@
 /**
  *******************************************************************************
- * @file AirsoftManager.hpp
+ * @file Gps.cpp
  *
  * @brief Description
  *
@@ -8,7 +8,7 @@
  *
  * @version 1.00
  *
- * @date November 27, 2024
+ * @date Dec 3, 2024
  *
  *******************************************************************************
  * This file is part of the Airsoft project 
@@ -29,35 +29,17 @@
  *******************************************************************************
  */
 
-#ifndef AIRSOFTMANAGER_HPP_
-#define AIRSOFTMANAGER_HPP_
-
-#include <thread>
+#include "Gps.hpp"
 
 namespace Airsoft {
 
-class AirsoftManager final {
-public:
-  AirsoftManager() = default;
-  virtual ~AirsoftManager() = default;
+Gps::Gps() {
+  // TODO Auto-generated constructor stub
 
-public:
-  bool Init(void);
-  void Terminate(void);
+}
 
-private:
-  // Pointer to thread
-  std::thread * _process {};
-  // Running flag for thread
-  bool _threadRunning {};
-
-private:
-  void Engine(void);
-  std::string Trim(const std::string & source);
-
-
-};
+Gps::~Gps() {
+  // TODO Auto-generated destructor stub
+}
 
 } // namespace Airsoft
-
-#endif // AIRSOFTMANAGER_HPP_

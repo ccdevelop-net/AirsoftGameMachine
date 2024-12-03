@@ -32,12 +32,29 @@
 #ifndef DRIVERS_UARTS_HPP_
 #define DRIVERS_UARTS_HPP_
 
+#include <cstdint>
+#include <cstdio>
+#include <string>
+#include <cstring>
+
 namespace Airsoft::Drivers {
 
 class Uarts final {
 public:
   Uarts();
   virtual ~Uarts();
+
+public:
+  bool Open(uint8_t serialPortNumber, uint32_t baudrate);
+  void Close(void);
+  bool Write(std::string message);
+  bool Write(uint8_t * data, size_t size);
+  size_t Read(uint8_t * buffer, size_t bufferLenght);
+  bool Read(std::string * text);
+
+private:
+  std::string _serialPort;
+  int32_t     _serialHandle { -1 };
 };
 
 } // namespace Airsoft::Drivers

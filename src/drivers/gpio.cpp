@@ -30,7 +30,6 @@
  */
 
 #include <drivers/gpio.hpp>
-#include <fstream>
 
 namespace Airsoft::Drivers {
 
@@ -57,71 +56,57 @@ Gpio::Gpio(uint32_t bank, uint8_t group, uint32_t id) {
 }
 //-----------------------------------------------------------------------------
 Gpio::~Gpio() {
-  // TODO Auto-generated destructor stub
+  // Close GPIO
+  Close();
 }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-bool Gpio::Open(Direction direction) {
+bool Gpio::Open(Direction direction, Level level) {
   if (!_isOpen) {
     // Assign direction
     _direction = direction;
 
-    //const std::string direction = "out";
-    /*const std::string path1 = "/sys/class/gpio/export";
+    // Export pin
+    std::ofstream extStream("/sys/class/gpio/export", std::ofstream::trunc);
 
-    std::ofstream extStream(path1.c_str(), std::ofstream::trunc);
-    if (extStream) {
-      extStream << "55";
+    // Check if open
+    if (extStream.is_open()) {
+      // Write number of the pin, flush and close
+      extStream << std::to_string(_gpioPin);
+      extStream.flush();
+      extStream.close();
     } else {
       // LOG error here
-      return false;
-    }
-    extStream.flush();
-    extStream.close();*/
-
-    // Export GPIO
-    FILE * exportFile = fopen("/sys/class/gpio/export", "w");
-    if (exportFile == nullptr) {
       perror("Failed to open GPIO export file");
       return false;
     }
-    fprintf(exportFile, "%d", _gpioPin);
-    fflush(exportFile);
-    fclose(exportFile);
 
-    //const std::string direction = "out";
-    const std::string path = "/sys/class/gpio/gpio" + std::to_string(_gpioPin) + "/direction";
+    // Direction of the GPIO
+    const std::string directionPath = "/sys/class/gpio/gpio" + std::to_string(_gpioPin) + "/direction";
 
-    /*std::ofstream dirStream(path.c_str(), std::ofstream::trunc);
-    if (dirStream) {
-      dirStream << direction;
+    // Open direction
+    std::ofstream dirStream(directionPath.c_str(), std::ofstream::trunc);
+
+    // Check if open
+    if (dirStream.is_open()) {
+      // Write direction of the pin, flush and close
+      dirStream << (_direction == Direction::Output ? "out" : "in");
+      dirStream.flush();
+      dirStream.close();
     } else {
       // LOG error here
-      return false;
-    }*/
-
-    // Set direction
-    char directionPath[75];
-    snprintf(directionPath, sizeof(directionPath), "/sys/class/gpio/gpio%d/direction", _gpioPin);
-    FILE * directionFile = fopen(directionPath, "w");
-    if (directionFile == nullptr) {
       perror("Failed to open GPIO direction file");
       return false;
     }
-    fprintf(directionFile, _direction == Direction::Output ? "out" : "in");
-    fflush(directionFile);
-    fclose(directionFile);
 
-    char value_path[50];
-    char cat_command[100];
-    snprintf(value_path, sizeof(value_path), "/sys/class/gpio/gpio%d/value", _gpioPin);
-    snprintf(cat_command, sizeof(cat_command), "cat %s", value_path);
-    _valuePath = value_path;
-    _catCommand = cat_command;
+    // GPIO value path
+    _valuePath = "/sys/class/gpio/gpio" + std::to_string(_gpioPin) + "/value";
+    _catCommand = "cat " + _valuePath;
 
     // Open File
-    if ((_value = fopen(_valuePath.c_str(), "w")) == nullptr) {
+    _valueOutput.open(_valuePath.c_str(), std::ofstream::trunc);
+    if (!_valueOutput.is_open()) {
       perror("Failed to open GPIO value file");
       return false;
     }
@@ -135,36 +120,75 @@ bool Gpio::Open(Direction direction) {
 }
 //-----------------------------------------------------------------------------
 void Gpio::Close(void) {
+  // Check if opened
   if (_isOpen) {
-    fflush(_value);
-    fclose(_value);
+    // Flush and close
+    _valueOutput.flush();
+    _valueOutput.close();
 
-    FILE * unexportFile = fopen("/sys/class/gpio/unexport", "w");
-    if (unexportFile == NULL) {
+    // Open 'unexport' control and disable GPIO
+    std::ofstream unexportStream("/sys/class/gpio/unexport", std::ofstream::trunc);
+    if (unexportStream.is_open()) {
+      unexportStream << std::to_string(_gpioPin);
+      unexportStream.flush();
+      unexportStream.close();
+    } else {
+      // LOG error here
       perror("Failed to open GPIO unexport file");
       return;
     }
-
-    fprintf(unexportFile, "%d", _gpioPin);
-    fflush(unexportFile);
-
-    fclose(unexportFile);
   }
 }
 //-----------------------------------------------------------------------------
 void Gpio::Set(void) {
-  fprintf(_value, "%d", 1);
-  fflush(_value);
+  // Only if output
+  if (_direction == Direction::Output) {
+    // Set pin and flush
+    _valueOutput << "1";
+    _valueOutput.flush();
+    _currentLevel = Level::High;
+  }
 }
 //-----------------------------------------------------------------------------
 void Gpio::Reset(void) {
-  fprintf(_value, "%d", 0);
-  fflush(_value);
+  // Only if output
+  if (_direction == Direction::Output) {
+    // Reset pin and flush
+    _valueOutput << "0";
+    _valueOutput.flush();
+    _currentLevel = Level::Low;
+  }
+}
+//-----------------------------------------------------------------------------
+void Gpio::Toggle(void) {
+  // Only if output
+  if (_direction == Direction::Output) {
+    // Reset pin and flush
+    _valueOutput << ((_currentLevel == Level::Low) ? "1" : "0");
+    _valueOutput.flush();
+    _currentLevel = (_currentLevel == Level::Low) ? Level::High : Level::Low;
+  }
 }
 //-----------------------------------------------------------------------------
 bool Gpio::Read(void) {
+  std::string value;
+  // Only if output
+  if (_direction == Direction::Input) {
+    FILE * fp {};
+    char buffer[10] {};
 
-  return false;
+    fp = popen(_catCommand.c_str(), "r");
+    if (fp != nullptr) {
+      if (fgets(buffer, 10, fp) != nullptr) {
+        //printf("%s", buffer);
+      }
+      pclose(fp);
+    }
+
+    return buffer[0] == '1';
+  }
+
+  return _currentLevel == Level::High;
 }
 //-----------------------------------------------------------------------------
 

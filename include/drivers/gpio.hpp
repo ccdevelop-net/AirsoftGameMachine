@@ -35,6 +35,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <fstream>
 
 namespace Airsoft::Drivers {
 
@@ -72,26 +73,35 @@ enum class Direction {
   Output
 };
 
+enum class Level {
+  Low,
+  High
+};
+
+
 class Gpio final {
 public:
   Gpio(uint32_t bank, uint8_t group, uint32_t id);
   virtual ~Gpio();
 
 public:
-  bool Open(Direction direction);
+  bool Open(Direction direction, Level level = Level::Low);
   void Close(void);
 
   void Set(void);
   void Reset(void);
+  void Toggle(void);
   bool Read(void);
+
 
 private:
   bool          _isOpen {};
   uint32_t      _gpioPin {};
   Direction     _direction { Direction::Input };
-  FILE  *       _value {};
+  std::ofstream _valueOutput;
   std::string   _valuePath;
   std::string   _catCommand;
+  Level         _currentLevel { Level::Low };
 
   bool          _outState {};
 

@@ -32,8 +32,10 @@
 #include <iostream>
 #include <chrono>
 #include <functional>
+#include <regex>
 
 #include <drivers/gpio.hpp>
+#include <drivers/uarts.hpp>
 
 #include "AirsoftManager.hpp"
 
@@ -67,18 +69,52 @@ void AirsoftManager::Terminate(void) {
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+std::string AirsoftManager::Trim(const std::string & source) {
+  std::string s(source);
+  s.erase(0,s.find_first_not_of(" \n\r\t"));
+  s.erase(s.find_last_not_of(" \n\r\t")+1);
+  return s;
+}
+//-----------------------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------------------
 void AirsoftManager::Engine(void) {
   // Thread Variables
   int count = 0;
-  Airsoft::Drivers::Gpio  led(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_7);
+  Airsoft::Drivers::Gpio  led(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_4);
+  Airsoft::Drivers::Gpio  aux(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_1);
+  Airsoft::Drivers::Uarts gps;
+  std::string gpsData;
 
   std::cout << "Engine Manager: Started." << std::endl;
 
   led.Open(Airsoft::Drivers::Direction::Output);
+  aux.Open(Airsoft::Drivers::Direction::Input);
+
+  gps.Open(3, 9600);
 
   while(_threadRunning) {
-    std::cout << "Count : " << count++  << std::endl;
-    std::this_thread::sleep_for(1000ms);
+    //std::cout << "Count : " << count++  << std::endl;
+    //led.Set();
+    //std::this_thread::sleep_for(1000ms);
+    if (gps.Read(&gpsData)) {
+      //std::cout << "GPS Data" << std::endl;
+      if (gpsData.find("$GPTXT", 0)) {
+        std::cout << std::regex_replace(gpsData, std::regex{R"(^\s+|\s+$)"}, "") << std::endl;
+        //std::cout << gpsData << std::endl;
+      }
+      gpsData.clear();
+    }
+    //led.Reset();
+    //std::this_thread::sleep_for(1000ms);
+    //if (aux.Read()) {
+    //  std::cout << "AUX : High" << std::endl;
+    //} else {
+    //  std::cout << "AUX : Low" << std::endl;
+    //}
+    std::this_thread::sleep_for(100ms);
   }
 
   std::cout << "Engine Manager: Terminated." << std::endl;
