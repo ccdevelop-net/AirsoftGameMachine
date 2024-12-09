@@ -82,6 +82,7 @@ enum class Level {
 class Gpio final {
 public:
   Gpio(uint32_t bank, uint8_t group, uint32_t id);
+  Gpio(uint32_t gpioPin);
   virtual ~Gpio();
 
 public:
@@ -93,6 +94,10 @@ public:
   void Toggle(void);
   bool Read(void);
 
+public:
+  static inline uint32_t CalculateGpioId(uint32_t bank, uint8_t group, uint32_t id) {
+    return (bank * 32) + ((group * 8) + id);
+  }
 
 private:
   bool          _isOpen {};

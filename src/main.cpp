@@ -21,10 +21,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //============================================================================
 
+#include <airsoftmanager.hpp>
 #include <iostream>
-#include "AirsoftManager.hpp"
+#include <config.hpp>
 
 using namespace std;
+
+namespace Airsoft {
+  AsmConfiguration   Configuration;
+}
 
 int main(int argc, char *argv[]) {
   Airsoft::AirsoftManager manager = Airsoft::AirsoftManager();

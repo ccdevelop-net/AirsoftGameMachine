@@ -38,6 +38,44 @@ class I2C final {
 public:
   I2C();
   virtual ~I2C();
+
+private:
+  std::string       _port;                                // Path to the file descriptor
+  int32_t           _fd { -1 };                           // The current file descriptor
+
+  bool              _initilized {};
+
+  bool              _is_open {};
+
+public:
+  bool Init(std::string port);
+  void Terminate(void);
+
+  bool inline IsInitialized(void) const {
+    return _initilized;
+  }
+
+  bool inline IsOpen(void) const {
+    return _is_open;
+  }
+
+  void SetClock(uint32_t clock);
+  void BeginTransmission(uint8_t address);
+  void BeginTransmission(int32_t address);
+  uint8_t EndTransmission(void);
+  uint8_t Status(void);
+
+  size_t Write(uint8_t data);
+  size_t Write(const uint8_t * data, size_t size);
+  int32_t Available(void);
+  int32_t Read(uint8_t * buffer, size_t bufferSize, size_t numByteToRead);
+  int32_t Peek(void);
+  void Flush(void);
+
+private:
+  bool Open(void);
+  void Close(void);
+  int32_t SetSlaveAddr(uint8_t address, bool force = false);
 };
 
 } // namespace Airsoft::Drivers

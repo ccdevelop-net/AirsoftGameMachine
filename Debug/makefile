@@ -8,7 +8,10 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/drivers/uarts/subdir.mk
 -include src/drivers/subdir.mk
+-include src/devices/subdir.mk
+-include src/classes/subdir.mk
 -include src/subdir.mk
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++M_DEPS)),)

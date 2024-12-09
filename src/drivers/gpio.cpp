@@ -11,8 +11,8 @@
  * @date November 27, 2024
  *
  *******************************************************************************
- * This file is part of the Airsoft project 
- * https://github.com/xxxx or http://xxx.github.io.
+ * This file is part of the Airsoft Game Machine project
+ * https://github.com/ccdevelop-net/AirsoftGameMachine
  * Copyright (c) 2024 CCDevelop.NET
  * 
  * This program is free software: you can redistribute it and/or modify  
@@ -33,7 +33,7 @@
 
 namespace Airsoft::Drivers {
 
-  //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Gpio::Gpio(uint32_t bank, uint8_t group, uint32_t id) {
   // Check if bank is in range
   if (bank > BANK_4) {
@@ -51,7 +51,12 @@ Gpio::Gpio(uint32_t bank, uint8_t group, uint32_t id) {
   }
 
   // Calculate GPIO Pin
-  _gpioPin = (bank * 32) + ((group * 8) + id);
+  _gpioPin = Gpio::CalculateGpioId(bank, group, id);
+}
+//-----------------------------------------------------------------------------
+Gpio::Gpio(uint32_t gpioPin) {
+  // Assign GPIO Pin
+  _gpioPin = gpioPin;
 
 }
 //-----------------------------------------------------------------------------
