@@ -8,6 +8,9 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/neo/ublox/subdir.mk
+-include src/neo/garmin/subdir.mk
+-include src/neo/subdir.mk
 -include src/drivers/uarts/subdir.mk
 -include src/drivers/subdir.mk
 -include src/devices/subdir.mk
@@ -40,12 +43,6 @@ ifneq ($(strip $(C_DEPS)),)
 endif
 ifneq ($(strip $(C_UPPER_DEPS)),)
 -include $(C_UPPER_DEPS)
-endif
-ifneq ($(strip $(INO_DEPS)),)
--include $(INO_DEPS)
-endif
-ifneq ($(strip $(PDE_DEPS)),)
--include $(PDE_DEPS)
 endif
 endif
 
