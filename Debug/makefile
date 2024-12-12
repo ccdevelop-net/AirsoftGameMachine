@@ -8,14 +8,14 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include src/neo/ublox/subdir.mk
--include src/neo/garmin/subdir.mk
--include src/neo/subdir.mk
--include src/drivers/uarts/subdir.mk
--include src/drivers/subdir.mk
--include src/devices/subdir.mk
--include src/classes/subdir.mk
--include src/subdir.mk
+-include source/neo/ublox/subdir.mk
+-include source/neo/garmin/subdir.mk
+-include source/neo/subdir.mk
+-include source/drivers/uarts/subdir.mk
+-include source/drivers/subdir.mk
+-include source/devices/subdir.mk
+-include source/classes/subdir.mk
+-include source/subdir.mk
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++M_DEPS)),)
 -include $(C++M_DEPS)

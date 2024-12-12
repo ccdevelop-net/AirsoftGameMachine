@@ -30,12 +30,12 @@ OBJS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-src \
-src/classes \
-src/devices \
-src/drivers \
-src/drivers/uarts \
-src/neo \
-src/neo/garmin \
-src/neo/ublox \
+source \
+source/classes \
+source/devices \
+source/drivers \
+source/drivers/uarts \
+source/neo \
+source/neo/garmin \
+source/neo/ublox \
 
