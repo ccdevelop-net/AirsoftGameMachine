@@ -36,18 +36,20 @@
 #include <chrono>
 #include <atomic>
 
+namespace Airsoft::Classes {
+
 class Timer {
 
 private:
   std::atomic<bool> active { true };
 
 public:
-  void SetTimeout(void (*function)(void), int32_t delay);
-  void SetInterval(void (*function)(void), int32_t interval);
+  void SetTimeout(std::function<void()> function, int32_t delay);
+  void SetInterval(std::function<void()> function, int32_t interval);
   void Stop();
 };
 
-void Timer::SetTimeout(void (*function)(void), int32_t delay) {
+void Timer::SetTimeout(std::function<void()> function, int32_t delay) {
   active = true;
 
   std::thread t([=]() {
@@ -67,7 +69,7 @@ void Timer::SetTimeout(void (*function)(void), int32_t delay) {
   t.detach();
 }
 
-void Timer::SetInterval(void (*function)(void), int32_t interval) {
+void Timer::SetInterval(std::function<void()> function, int32_t interval) {
   active = true;
   std::thread t([=]() {
     while(active.load()) {
@@ -86,5 +88,7 @@ void Timer::SetInterval(void (*function)(void), int32_t interval) {
 void Timer::Stop(void) {
   active = false;
 }
+
+} // namespace Airsoft::Classes
 
 #endif  // CLASSES_TIMER_HPP_

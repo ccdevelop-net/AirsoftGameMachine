@@ -2,17 +2,17 @@
  *******************************************************************************
  * @file wireless.cpp
  *
- * @brief Description
+ * @brief Manage communication with remote units via LoRa module
  *
- * @author  Cristian
+ * @author  Cristian Croci - CCDevelop.net
  *
  * @version 1.00
  *
- * @date Dec 6, 2024
+ * @date Dec 3, 2024
  *
  *******************************************************************************
- * This file is part of the Airsoft project 
- * https://github.com/xxxx or http://xxx.github.io.
+ * This file is part of the Airsoft Game Machine project
+ * https://github.com/ccdevelop-net/AirsoftGameMachine.
  * Copyright (c) 2024 CCDevelop.NET
  * 
  * This program is free software: you can redistribute it and/or modify  
@@ -28,7 +28,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************
  */
-
 #include <iostream>
 #include <chrono>
 #include <functional>
@@ -41,14 +40,6 @@
 using namespace std::chrono_literals;
 
 namespace Airsoft {
-
-Wireless::Wireless() {
-
-}
-
-Wireless::~Wireless() {
-
-}
 
 //------------------------------------------------------------------------------
 bool Wireless::Init(std::string port, int32_t auxPin, int32_t m0Pin, int32_t m1Pin) {

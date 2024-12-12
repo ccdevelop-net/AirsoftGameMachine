@@ -16,6 +16,7 @@ RM := rm -rf
 -include source/devices/subdir.mk
 -include source/classes/subdir.mk
 -include source/subdir.mk
+-include pages/subdir.mk
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++M_DEPS)),)
 -include $(C++M_DEPS)

@@ -30,6 +30,7 @@ OBJS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+pages \
 source \
 source/classes \
 source/devices \

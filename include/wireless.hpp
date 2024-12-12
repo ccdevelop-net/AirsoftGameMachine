@@ -41,9 +41,17 @@ namespace Airsoft {
 
 
 class Wireless final {
+private:
+  Wireless(void) = default;
+
 public:
-  Wireless();
-  virtual ~Wireless();
+  virtual ~Wireless(void) = default;
+
+public:
+  static Wireless & Instance(void) {
+    static Wireless _instance;
+    return _instance;
+  }
 
 public:
   bool Init(std::string port, int32_t auxPin = -1, int32_t m0Pin = -1, int32_t m1Pin = -1);

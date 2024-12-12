@@ -2,16 +2,16 @@
  *******************************************************************************
  * @file inout.cpp
  *
- * @brief Description
+ * @brief Input/Output/Leds and Keyboard Engine
  *
- * @author  Cristian
+ * @author  Cristian Croci - CCDevelop.net
  *
  * @version 1.00
  *
  * @date Dec 3, 2024
  *
  *******************************************************************************
- * This file is part of the Airsoft project 
+ * This file is part of the Airsoft Game Machine project
  * https://github.com/ccdevelop-net/AirsoftGameMachine.
  * Copyright (c) 2024 CCDevelop.NET
  * 
@@ -38,6 +38,9 @@
 #include <inout.hpp>
 
 using namespace std::chrono_literals;
+
+// To debug IO class set flag to 1
+#define DEBUG_IO 0
 
 namespace Airsoft {
 
@@ -87,6 +90,58 @@ void InOut::Rele(uint8_t releId, bool value) {
   ManageIo(&_map[releId], value);
 }
 //------------------------------------------------------------------------------
+size_t InOut::KeysOnQueue(void) {
+  // Function Variables
+  size_t    size {};
+
+  // Lock access to queue
+  _queueLock.lock();
+
+  // Get queue size
+  size = _keysQueue.size();
+
+  // Unlock access to queue
+  _queueLock.unlock();
+
+  return size;
+}
+//------------------------------------------------------------------------------
+bool InOut::GetKeyFromQueue(char & key, uint8_t & keyCode) {
+  // Function Variables
+  KeyData * data {};
+  bool      valid {};
+
+  // Lock access to queue
+  _queueLock.lock();
+
+  // Check if
+  if (_keysQueue.size() > 0) {
+    // Get key from queue
+    data = _keysQueue.front();
+
+    // Set data to return
+    key = data->Key;
+    keyCode = data->KeyCode;
+
+    // Remove from queue
+    _keysQueue.pop();
+
+    valid = true;
+
+    delete data;
+    data = nullptr;
+  } else {
+    key = '\0';
+    keyCode = 0xFF;
+  }
+
+  // Unlock access to queue
+  _queueLock.unlock();
+
+  return valid;
+}
+//------------------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -140,7 +195,21 @@ void InOut::Engine(void) {
     _wireLock.unlock();
 
     if (key != I2C_KEYPAD_THRESHOLD && key != I2C_KEYPAD_NOKEY) {
+      // Lock access to queue
+      _queueLock.lock();
+
+      // Read and queue key
+      KeyData * keyData = new KeyData;
+      keyData->Key = static_cast<char>(key);
+      keyData->KeyCode = _keyboard->GetLastKey();
+      _keysQueue.push(keyData);
+
+      // Unlock access to queue
+      _queueLock.unlock();
+
+#if DEBUG_IO
       std::cout << (char)key << std::endl;
+#endif
     }
 
     std::this_thread::sleep_for(100ms);

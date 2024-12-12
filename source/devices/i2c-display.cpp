@@ -2,9 +2,9 @@
  *******************************************************************************
  * @file i2c-display.cpp
  *
- * @brief Description
+ * @brief I2C Display device manager
  *
- * @author  Cristian
+ * @author  Cristian Croci - ccdevelop.net
  *
  * @version 1.00
  *
@@ -12,7 +12,7 @@
  *
  *******************************************************************************
  * This file is part of the Airsoft project 
- * https://github.com/xxxx or http://xxx.github.io.
+ * https://github.com/ccdevelop-net/AirsoftGameMachine.
  * Copyright (c) 2024 CCDevelop.NET
  * 
  * This program is free software: you can redistribute it and/or modify  
@@ -28,7 +28,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************
  */
-
 #include <thread>
 #include <chrono>
 #include <functional>
@@ -73,17 +72,25 @@ constexpr uint8_t I2C_LCD_2LINE               = 0x08;
 constexpr uint8_t I2C_LCD_5x10DOTS            = 0x04;
 
 //------------------------------------------------------------------------------
-I2CDisplay::I2CDisplay(Drivers::I2C * wire, uint8_t address) {
-  _address = address;
-  _wire = wire;
+I2CDisplay::I2CDisplay(void) {
   _displayControl = I2C_LCD_DISPLAYCONTROL;
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+bool I2CDisplay::Init(std::string device, uint8_t address) {
+  _address = address;
+
+  // Initialize I2C interface
+  if (_wire.Init(device)) {
+    return true;
+  }
+
+  return false;
+}
+//------------------------------------------------------------------------------
 void I2CDisplay::Config (uint8_t address, uint8_t enable, uint8_t readWrite, uint8_t registerSelect,
-                      uint8_t data4, uint8_t data5, uint8_t data6, uint8_t data7,
-                      uint8_t backLight, uint8_t polarity) {
+                         uint8_t data4, uint8_t data5, uint8_t data6, uint8_t data7, uint8_t backLight, uint8_t polarity) {
   if (_address != address) {
     return;
   }
@@ -114,9 +121,9 @@ bool I2CDisplay::Begin(uint8_t cols, uint8_t rows) {
   }
 
   // All lines low
-  _wire->BeginTransmission(_address);
-  _wire->Write(0x00);
-  _wire->EndTransmission();
+  _wire.BeginTransmission(_address);
+  _wire.Write(0x00);
+  _wire.EndTransmission();
 
   // Figure 24 for procedure on 4-bit initialization wait for more than 15 ms
   // if other objects initialize earlier there will be less blocking time.
@@ -148,8 +155,8 @@ bool I2CDisplay::Begin(uint8_t cols, uint8_t rows) {
 }
 //------------------------------------------------------------------------------
 bool I2CDisplay::IsConnected(void) {
-  _wire->BeginTransmission(_address);
-  return _wire->EndTransmission() == 0;
+  _wire.BeginTransmission(_address);
+  return _wire.EndTransmission() == 0;
 }
 //------------------------------------------------------------------------------
 void I2CDisplay::SetBacklightPin(uint8_t pin, uint8_t polarity) {
@@ -393,12 +400,12 @@ void I2CDisplay::Send(uint8_t value, bool dataFlag) {
     }
   }
 
-  _wire->BeginTransmission(_address);
-  _wire->Write(MSN | _enable);
-  _wire->Write(MSN);
-  _wire->Write(LSN | _enable);
-  _wire->Write(LSN);
-  _wire->EndTransmission();
+  _wire.BeginTransmission(_address);
+  _wire.Write(MSN | _enable);
+  _wire.Write(MSN);
+  _wire.Write(LSN | _enable);
+  _wire.Write(LSN);
+  _wire.EndTransmission();
   if (I2C_LCD_CHAR_DELAY) {
     std::this_thread::sleep_for(std::chrono::microseconds(I2C_LCD_CHAR_DELAY));
   }
@@ -414,12 +421,12 @@ void I2CDisplay::Write4bits(uint8_t value) {
     value >>= 1;
   }
 
-  _wire->BeginTransmission(_address);
-  _wire->Write(cmd | _enable);
-  _wire->EndTransmission();
-  _wire->BeginTransmission(_address);
-  _wire->Write(cmd);
-  _wire->EndTransmission();
+  _wire.BeginTransmission(_address);
+  _wire.Write(cmd | _enable);
+  _wire.EndTransmission();
+  _wire.BeginTransmission(_address);
+  _wire.Write(cmd);
+  _wire.EndTransmission();
 }
 //------------------------------------------------------------------------------
 

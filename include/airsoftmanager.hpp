@@ -2,17 +2,17 @@
  *******************************************************************************
  * @file AirsoftManager.hpp
  *
- * @brief Description
+ * @brief Main application header file
  *
- * @author  Cristian
+ * @author  Cristian Croci - CCDevelop.net
  *
  * @version 1.00
  *
- * @date November 27, 2024
+ * @date Dec 3, 2024
  *
  *******************************************************************************
- * This file is part of the Airsoft project 
- * https://github.com/xxxx or http://xxx.github.io.
+ * This file is part of the Airsoft Game Machine project
+ * https://github.com/ccdevelop-net/AirsoftGameMachine.
  * Copyright (c) 2024 CCDevelop.NET
  * 
  * This program is free software: you can redistribute it and/or modify  
@@ -28,11 +28,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************
  */
-
 #ifndef AIRSOFTMANAGER_HPP_
 #define AIRSOFTMANAGER_HPP_
 
+#include <list>
 #include <thread>
+
+#include <templates/display-engine.hpp>
+#include <templates/display-page.hpp>
+
 #include <gps.hpp>
 #include <wireless.hpp>
 #include <inout.hpp>
@@ -40,7 +44,7 @@
 
 namespace Airsoft {
 
-class AirsoftManager final {
+class AirsoftManager final : public Airsoft::Templates::DisplayEngine {
 public:
   AirsoftManager() = default;
   virtual ~AirsoftManager() = default;
@@ -49,23 +53,47 @@ public:
   bool Init(void);
   void Terminate(void);
 
-private:
-  // Pointer to thread
-  std::thread * _process {};
-  // Running flag for thread
-  bool          _threadRunning {};
+public:
+  void Clean(void) override;
+  void CleanRow(uint8_t row) override;
 
-  Gps                             _gps;
-  Wireless                        _wireless;
-  InOut                           _inout;
-  Airsoft::Devices::I2CDisplay  * _display {};
-  Airsoft::Drivers::I2C           _wire;
+  void Print(char val) override;
+  void Print(const char * str) override;
+  void Print(std::string str) override;
+
+  void PrintAt(uint8_t col, uint8_t row, char val) override;
+  void PrintAt(uint8_t col, uint8_t row, const char * str) override;
+  void PrintAt(uint8_t col, uint8_t row, std::string str) override;
+
+  void MoveCursor(uint8_t col, uint8_t row) override;
+
+  void Backlight(Airsoft::Templates::DisplayStatus status) override;
+  void Display(Airsoft::Templates::DisplayStatus status) override;
+
+  bool ActivatePage(Airsoft::Templates::DisplayPage * pageToActivate) override;
+
+private:
+  std::thread           *                       _process {};          // Pointer to thread
+  bool                                          _threadRunning {};    // Running flag for thread
+  bool                                          _threadTerminated {}; // Terminated flag for thread
+
+  std::mutex                                    _pagesLock;
+  bool                                          _newPageAvailable {}; // Indicate new page must be called
+  Airsoft::Templates::DisplayPage *             _newPage {};          // New page
+
+  Airsoft::Templates::DisplayPage *             _currentPage {};      // Current page
+  std::list<Airsoft::Templates::DisplayPage*>   _pages;               // List of the pages
 
 private:
   void Engine(void);
 
 private:
   bool LoadConfiguration(void);
+
+  inline Airsoft::InOut & _InOut(void) { return Airsoft::InOut::Instance(); }
+  inline Airsoft::Wireless & _Wireless(void) { return Airsoft::Wireless::Instance(); }
+  inline Airsoft::Gps & _Gps(void) { return Airsoft::Gps::Instance(); }
+  inline Airsoft::Devices::I2CDisplay & _Display(void) { return Airsoft::Devices::I2CDisplay::Instance(); }
 
 
 };

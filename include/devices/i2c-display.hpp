@@ -51,11 +51,20 @@ constexpr uint8_t POSITIVE = 1;
 constexpr uint8_t NEGATIVE = 0;
 
 class I2CDisplay final : public Airsoft::Classes::Print {
+private:
+  I2CDisplay(void);
 public:
-  I2CDisplay(Drivers::I2C * wire, uint8_t address);
   virtual ~I2CDisplay() = default;
 
 public:
+  static I2CDisplay & Instance(void) {
+    static I2CDisplay _instance;
+    return _instance;
+  }
+
+public:
+  bool Init(std::string device, uint8_t address);
+
   // Adjust pins
   void Config(uint8_t address, uint8_t enable, uint8_t readWrite, uint8_t registerSelect,
               uint8_t data4, uint8_t data5, uint8_t data6, uint8_t data7,
@@ -139,7 +148,7 @@ private:
   void Write4bits(uint8_t value);
 
   uint8_t         _address {};
-  Drivers::I2C *  _wire {};
+  Drivers::I2C    _wire {};
 
   uint8_t         _enable         { 4 };
   uint8_t         _readWrite      { 2 };

@@ -2,9 +2,9 @@
  *******************************************************************************
  * @file AirsoftManager.cpp
  *
- * @brief Description
+ * @brief Main application
  *
- * @author  Cristian Croci
+ * @author  Cristian Croci - ccdevelop.net
  *
  * @version 1.00
  *
@@ -12,7 +12,7 @@
  *
  *******************************************************************************
  * This file is part of the Airsoft project 
- * https://github.com/xxxx or http://xxx.github.io.
+ * https://github.com/ccdevelop-net/AirsoftGameMachine.
  * Copyright (c) 2024 CCDevelop.NET
  * 
  * This program is free software: you can redistribute it and/or modify  
@@ -42,9 +42,17 @@
 #include <drivers/uarts.hpp>
 #include <classes/timer.hpp>
 
+#include <pages.hpp>
+
 using namespace std::chrono_literals;
 
 namespace Airsoft {
+
+constexpr int32_t MAX_THREAD_WAIT_ON_EXIT = 10;
+
+//======================================================================================================================
+// Public Functions ****************************************************************************************************
+//======================================================================================================================
 
 //-----------------------------------------------------------------------------
 bool AirsoftManager::Init(void) {
@@ -58,17 +66,26 @@ bool AirsoftManager::Init(void) {
 void AirsoftManager::Terminate(void) {
   // Check valid thread
   if (_process != nullptr) {
+    int32_t maxWait = MAX_THREAD_WAIT_ON_EXIT;
+
     // Reset thread flag
     _threadRunning = false;
 
-    // Wait 1.5 second for thread terminate
-    std::this_thread::sleep_for(1500ms);
+    // Wait terminate for max \MAX_THREAD_WAIT_ON_EXIT\ seconds
+    while(!_threadTerminated && maxWait-- > 0) {
+      // Wait 1 second
+      std::this_thread::sleep_for(1000ms);
+    }
 
-    //delete _process;
+    // Null process
     _process = nullptr;
   }
 }
 //-----------------------------------------------------------------------------
+
+//======================================================================================================================
+// Private Functions ***************************************************************************************************
+//======================================================================================================================
 
 //-----------------------------------------------------------------------------
 bool AirsoftManager::LoadConfiguration(void) {
@@ -97,17 +114,38 @@ bool AirsoftManager::LoadConfiguration(void) {
 }
 //-----------------------------------------------------------------------------
 
+//======================================================================================================================
+// Main Thread Engine **************************************************************************************************
+//======================================================================================================================
+
+
+//======================================================================================================================
+// Main Thread Engine **************************************************************************************************
+//======================================================================================================================
+
+// Pointer to GPIO led for use with timer
+static Airsoft::Drivers::Gpio * t_led {};
+
 //-----------------------------------------------------------------------------
 void AirsoftManager::Engine(void) {
   // Thread Variables
-  int count = 0;
+  Airsoft::Classes::Timer ledTimer = Airsoft::Classes::Timer();
+  //int count = 0;
   Airsoft::Drivers::Gpio  led(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_4);
 
   std::cout << "Engine Manager: Started." << std::endl;
 
+  // Load configuration
   LoadConfiguration();
 
+  // Configure GPIO for led status
   led.Open(Airsoft::Drivers::Direction::Output);
+
+  // Start blink timer
+  t_led = &led;
+  ledTimer.SetInterval([]() {
+    t_led->Toggle();
+  }, 500);
 
   // Initialize GPS Module
   //_gps.Init("/dev/ttyS3");
@@ -122,45 +160,157 @@ void AirsoftManager::Engine(void) {
 
   //bool value = ON;
 
-  if (_wire.Init("/dev/i2c-4")) {
-    if ((_display = new Airsoft::Devices::I2CDisplay(&_wire, 0x27)) != nullptr) {
-      if (!_display->Begin()) {
-        while(true) {
-          std::this_thread::sleep_for(500ms);
-        }
+  // Initialize Display
+  if (_Display().Init("/dev/i2c-4", 0x27)) {
+    if (!_Display().Begin()) {
+      std::cout << "Error start Display!!!!" << std::endl;
+      while(true) {
+        std::this_thread::sleep_for(500ms);
       }
     }
-
   }
 
+  // Create Main Page
+  _currentPage = new Airsoft::Pages::PMain();
+  _pages.push_back(_currentPage);
 
+  // Load Page
+  _currentPage->Load(this);
+
+  // Begin program thread ===========================================
 
   // Thread loop
   while(_threadRunning) {
-    std::cout << "Count : " << count++  << std::endl;
-    led.Set();
-    std::this_thread::sleep_for(500ms);
-    led.Reset();
-    std::this_thread::sleep_for(500ms);
+    // Handle keys
+    while(_InOut().KeysOnQueue() > 0) {
+      // Local variables
+      char    key {};
+      uint8_t keyCode {};
 
-    std::stringstream test;
+      // Read Key info
+      if (_InOut().GetKeyFromQueue(key, keyCode)) {
+        _currentPage->KeyHandle(key, keyCode);
+      }
+    }
+
+    // Verify current page
+    if (_currentPage) {
+      // Call periodic function
+      _currentPage->Periodic();
+    }
+
+    // Check if new page
+    if (_newPageAvailable) {
+      _pages.push_back(_newPage);
+      _currentPage = _newPage;
+      _newPageAvailable = false;
+
+      continue;
+    }
+
+    // Sleep for periodic time
+    std::this_thread::sleep_for(std::chrono::milliseconds(_currentPage->PeriodicTime()));
+
+    /*std::stringstream test;
 
     test << "Count: " << count;
-    _display->SetCursor(0, 0);
-    _display->print(test.str());
+    _Display().SetCursor(0, 0);
+    _Display().print(test.str());*/
 
     //_inout.Led(LED1, value);
     //value = !value;
-
   }
 
+  // Terminate program ==============================================
+
+  // Remove all pages from queue
+  while (!_pages.empty()) {
+    Airsoft::Templates::DisplayPage * page { _pages.back() };
+    _pages.pop_back();
+    delete page;
+  }
+
+  // Terminate In/Out
+  _InOut().Terminate();
+
   // Terminate Wireless
-  _wireless.Terminate();
+  _Wireless().Terminate();
 
   // Terminate GPS
-  _gps.Terminate();
+  _Gps().Terminate();
+
+  // Stop
+  ledTimer.Stop();
 
   std::cout << "Engine Manager: Terminated." << std::endl;
 }
+//-----------------------------------------------------------------------------
 
+//======================================================================================================================
+// Implement DisplayEngine Interface ***********************************************************************************
+//======================================================================================================================
+
+//-----------------------------------------------------------------------------
+void AirsoftManager::Clean(void) {
+  _Display().Clear();
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::CleanRow(uint8_t row) {
+  // Function Variables
+  std::string clean = "                    ";
+
+  _Display().SetCursor(0, row);
+  _Display().print(clean.c_str());
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::Print(char val) {
+  _Display().print(val);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::Print(const char * str) {
+  _Display().print(str);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::Print(std::string str) {
+  _Display().print(str);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::PrintAt(uint8_t col, uint8_t row, char val) {
+  _Display().SetCursor(col, row);
+  _Display().print(val);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::PrintAt(uint8_t col, uint8_t row, const char * str) {
+  _Display().SetCursor(col, row);
+  _Display().print(str);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::PrintAt(uint8_t col, uint8_t row, std::string str) {
+  _Display().SetCursor(col, row);
+  _Display().print(str);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::MoveCursor(uint8_t col, uint8_t row) {
+  _Display().SetCursor(col, row);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::Backlight(Airsoft::Templates::DisplayStatus status) {
+  _Display().SetBacklight(status == Airsoft::Templates::DisplayStatus::On);
+}
+//-----------------------------------------------------------------------------
+void AirsoftManager::Display(Airsoft::Templates::DisplayStatus status) {
+  // TODO: To Reuse
+}
+//-----------------------------------------------------------------------------
+bool AirsoftManager::ActivatePage(Airsoft::Templates::DisplayPage * pageToActivate) {
+  if (_newPageAvailable) {
+    return false;
+  }
+
+  _newPage = pageToActivate;
+  _newPageAvailable = true;
+
+  return true;
+}
+//-----------------------------------------------------------------------------
 } // namespace Airsoft
