@@ -28,7 +28,7 @@
 using namespace std;
 
 namespace Airsoft {
-  AsmConfiguration   Configuration;
+  //AsmConfiguration   Configuration;
 }
 
 int main(int argc, char *argv[]) {

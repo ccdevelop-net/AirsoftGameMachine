@@ -41,7 +41,7 @@ struct AsmConfiguration {
   uint8_t AddressL;         // Wireless Address part low
 };
 
-extern AsmConfiguration   Configuration;
+inline AsmConfiguration   Configuration {};
 
 }
 
