@@ -33,6 +33,7 @@
 
 #include <list>
 #include <thread>
+#include <mutex>
 
 #include <templates/display-engine.hpp>
 #include <templates/display-page.hpp>
