@@ -301,10 +301,11 @@ public:
     STATUS_DGPS,
     STATUS_RTK_FLOAT,
     STATUS_RTK_FIXED,
-    STATUS_PPS // Precise Position System, *NOT* Pulse-per-second
+    STATUS_PPS, // Precise Position System, *NOT* Pulse-per-second
+    STATUS_UNDEFINED
   };
 
-  Status  status { 8 };
+  Status  status { Status::STATUS_UNDEFINED };
 
   //--------------------------------------------------------
   //  Flags to indicate which members of this fix are valid.

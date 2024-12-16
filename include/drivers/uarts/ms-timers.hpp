@@ -22,10 +22,10 @@ public:
   int64_t Remaining(void);
 
 private:
-  static std::timespec TimespecNow(void);
+  static timespec TimespecNow(void);
 
 private:
-  std::timespec expiry;
+  timespec expiry;
 };
 
 }
