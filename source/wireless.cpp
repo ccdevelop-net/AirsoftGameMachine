@@ -96,7 +96,9 @@ bool Wireless::ReceiveMessage(std::string & message) {
 }
 //------------------------------------------------------------------------------
 
-
+//======================================================================================================================
+// Wireless Thread Engine **********************************************************************************************
+//======================================================================================================================
 
 //------------------------------------------------------------------------------
 void Wireless::Engine(void) {
@@ -150,7 +152,7 @@ void Wireless::Engine(void) {
     Airsoft::Devices::ResponseContainer response;
     try {
       response = lora.ReceiveMessage();
-      if (response.status.code == E220_SUCCESS) {
+      if (response.status.code == E220_SUCCESS && response.data.length() > 0) {
         _inLock.lock();
         _in.push(response.data);
         _inLock.unlock();

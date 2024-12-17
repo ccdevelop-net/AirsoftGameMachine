@@ -307,7 +307,9 @@ ResponseContainer EByteLoRaE220::ReceiveMessageComplete(bool rssiEnabled){
   std::string tmpData = _serial->Read(255);
 
 #ifdef LoRa_E220_DEBUG
-  std::cout << tmpData << std::endl;
+  if (tmpData.length() > 0) {
+    std::cout << tmpData << std::endl;
+  }
 #endif
 
   if (rssiEnabled) {
@@ -674,13 +676,13 @@ uint64_t EByteLoRaE220::Decrypt(uint64_t data) {
 void EByteLoRaE220::PrintParameters(struct Configuration *configuration) {
   std::cout << "----------------------------------------" << std::endl;
 
-  std::cout << "HEAD : " << std::hex << configuration->Command << std::dec << " " <<
+  std::cout << "HEAD : " << std::hex << (int)configuration->Command << std::dec << " " <<
       std::hex << configuration->StartAddress << std::dec << " " << std::hex << configuration->Lenght << std::dec << std::endl;
   std::cout << " " << std::endl;
-  std::cout << "AddH : " << std::hex << configuration->AddrH << std::dec << std::endl;
-  std::cout << "AddL : " << std::hex << configuration->AddrL << std::dec << std::endl;
+  std::cout << "AddH : " << std::hex << (int)configuration->AddrH << std::dec << std::endl;
+  std::cout << "AddL : " << std::hex << (int)configuration->AddrL << std::dec << std::endl;
   std::cout << " " << std::endl;
-  std::cout << "Channel : " << configuration->Channel << " -> " << configuration->GetChannelDescription();
+  std::cout << "Channel : " << (int)configuration->Channel << " -> " << configuration->GetChannelDescription();
   std::cout << " " << std::endl;
   std::cout << "SpeedParityBit     : " << std::bitset<8>(configuration->SpeeD.uartParity) << " -> " << configuration->SpeeD.GetUARTParityDescription() << std::endl;
   std::cout << "SpeedUARTDatte     : " << std::bitset<8>(configuration->SpeeD.uartBaudRate) << " -> " << configuration->SpeeD.GetUARTBaudRateDescription() << std::endl;

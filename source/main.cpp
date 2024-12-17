@@ -29,11 +29,13 @@
 
 using namespace std;
 
+//------------------------------------------------------------------------------
 namespace Airsoft {
-  //AsmConfiguration   Configuration;
+  AsmConfiguration   Configuration {};
 }
+//------------------------------------------------------------------------------
 
-__asm__(".symver realpath,realpath@GLIBC_2.35");
+//------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
   Airsoft::AirsoftManager manager;
 
@@ -51,4 +53,5 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+//------------------------------------------------------------------------------
 

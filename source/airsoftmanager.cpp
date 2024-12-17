@@ -104,7 +104,7 @@ bool AirsoftManager::LoadConfiguration(void) {
   }
 
   std::string configFile = folder;
-  configFile += "/asm-config.cfg";
+  configFile += "/airsoft/asm-config.cfg";
 
   std::ifstream fconf(configFile.c_str());
   std::string line;
@@ -155,17 +155,16 @@ void AirsoftManager::Engine(void) {
   }, 500);
 
   // Initialize GPS Module
-  //_gps.Init("/dev/ttyS3");
+  _Gps().Init("/dev/ttyS3");
 
   // Initialize Wireless
-  /*_wireless.Init("/dev/ttyS0", Airsoft::Drivers::Gpio::CalculateGpioId(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_1),
+  _Wireless().Init("/dev/ttyS0", Airsoft::Drivers::Gpio::CalculateGpioId(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_1),
                                Airsoft::Drivers::Gpio::CalculateGpioId(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_2),
                                Airsoft::Drivers::Gpio::CalculateGpioId(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_3));
-*/
 
-  //_inout.Init("/dev/i2c-3");
 
-  //bool value = ON;
+  // Initialize In/Out
+  _InOut().Init("/dev/i2c-3");
 
   // Initialize Display
   if (_Display().Init("/dev/i2c-4", 0x27)) {
@@ -217,15 +216,6 @@ void AirsoftManager::Engine(void) {
 
     // Sleep for periodic time
     std::this_thread::sleep_for(std::chrono::milliseconds(_currentPage->PeriodicTime()));
-
-    /*std::stringstream test;
-
-    test << "Count: " << count;
-    _Display().SetCursor(0, 0);
-    _Display().print(test.str());*/
-
-    //_inout.Led(LED1, value);
-    //value = !value;
   }
 
   // Terminate program ==============================================
