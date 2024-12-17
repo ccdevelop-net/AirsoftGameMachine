@@ -36,6 +36,7 @@
 #include <regex>
 #include <filesystem>
 #include <string>
+#include <unistd.h>
 
 #include <config.hpp>
 #include <drivers/gpio.hpp>
@@ -90,11 +91,22 @@ void AirsoftManager::Terminate(void) {
 //-----------------------------------------------------------------------------
 bool AirsoftManager::LoadConfiguration(void) {
   // Function Variables
-  std::filesystem::path folder = std::filesystem::current_path();
+  char folder[1024];
 
-  folder /= "asm-config.cfg";
+  // Get current folder
+  if (getcwd(folder, 1024) != nullptr) {
+    // print the current working directory
+    std::cout << "Current working directory: " << folder << std::endl;
+  } else {
+    // If _getcwd returns NULL, print an error message
+    std::cerr << "Error getting current working directory" << std::endl;
+    return false;
+  }
 
-  std::ifstream fconf(folder.c_str());
+  std::string configFile = folder;
+  configFile += "/asm-config.cfg";
+
+  std::ifstream fconf(configFile.c_str());
   std::string line;
   while(std::getline(fconf, line)) {
     std::istringstream is_line(line);
@@ -124,7 +136,7 @@ static Airsoft::Drivers::Gpio * t_led {};
 //-----------------------------------------------------------------------------
 void AirsoftManager::Engine(void) {
   // Thread Variables
-  Airsoft::Classes::Timer ledTimer = Airsoft::Classes::Timer();
+  Airsoft::Classes::Timer ledTimer;
   //int count = 0;
   Airsoft::Drivers::Gpio  led(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_4);
 

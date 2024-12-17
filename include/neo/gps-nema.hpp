@@ -78,7 +78,8 @@ enum class RxStateValues : uint8_t {
     NMEA_IDLE,             // Waiting for initial '$'
     NMEA_RECEIVING_HEADER, // Parsing sentence type field
     NMEA_RECEIVING_DATA,   // Parsing fields up to the terminating '*'
-    NMEA_RECEIVING_CRC     // Receiving two-byte transmitted CRC
+    NMEA_RECEIVING_CRC,    // Receiving two-byte transmitted CRC
+    NMEA_UNDEFINED = 8
 };
 constexpr RxStateValues NMEA_FIRST_STATE = RxStateValues::NMEA_IDLE;
 constexpr RxStateValues NMEA_LAST_STATE  = RxStateValues::NMEA_RECEIVING_CRC;
@@ -231,7 +232,7 @@ public:
   const std::string StringFor(NmeaMessages msg) const;
 
   // Most recent NMEA sentence type received.
-  NmeaMessages nmeaMessage { 8 };
+  NmeaMessages nmeaMessage { NmeaMessages::NMEAMSG_END };
 
   //  Storage for Talker and Manufacturer IDs
 
@@ -437,7 +438,7 @@ public:
 #endif
     }
 
-    RxStateValues RxState { 8 };
+    RxStateValues RxState { RxStateValues::NMEA_UNDEFINED };
 
     uint8_t _available() const volatile {
       return _fixesAvailable;

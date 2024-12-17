@@ -39,9 +39,15 @@
 namespace Airsoft::Classes {
 
 class Timer {
+public:
+  Timer(void) = default;
+  ~Timer(void) = default;
 
 private:
-  std::atomic<bool> active { true };
+  Timer(const Timer &) = delete;
+
+private:
+  std::atomic_bool active = { true };
 
 public:
   void SetTimeout(std::function<void()> function, int32_t delay);

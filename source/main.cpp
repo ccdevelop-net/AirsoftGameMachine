@@ -25,14 +25,17 @@
 #include <iostream>
 #include <config.hpp>
 
+#include <features.h>
+
 using namespace std;
 
 namespace Airsoft {
   //AsmConfiguration   Configuration;
 }
 
+__asm__(".symver realpath,realpath@GLIBC_2.35");
 int main(int argc, char *argv[]) {
-  Airsoft::AirsoftManager manager = Airsoft::AirsoftManager();
+  Airsoft::AirsoftManager manager;
 
   if (manager.Init()) {
     while(true) {
