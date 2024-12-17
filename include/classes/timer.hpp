@@ -44,7 +44,8 @@ public:
   ~Timer(void) = default;
 
 private:
-  Timer(const Timer &) = delete;
+  Timer(const Timer &);
+  Timer & operator =(const Timer &);
 
 private:
   std::atomic_bool active = { true };

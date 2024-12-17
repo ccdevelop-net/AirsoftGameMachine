@@ -130,14 +130,21 @@ public:
   //   object is passed in so a char can be read if port.available().
 
   uint8_t Available(Airsoft::Drivers::Uarts & port) {
+    // Function Variables
     size_t dataSize = port.Available();
     std::unique_ptr<uint8_t[]> buf;
 
+    // DAta available
     if (dataSize > 0) {
+      // Allocate buffer
       buf.reset(new uint8_t[dataSize]);
 
-      for(size_t elem {}; elem < dataSize; elem++) {
-        Handle(buf.get()[elem]);
+      // Read serial data
+      if (port.Read(buf.get(), dataSize) == dataSize) {
+
+        for(size_t elem {}; elem < dataSize; elem++) {
+          Handle(buf.get()[elem]);
+        }
       }
     }
 
@@ -198,7 +205,7 @@ public:
   //  For example, fix().longitude() may return nonsense data if
   //  characters for that field are currently being processed in /decode/.
 
-  GpsFix & fix(void) {
+  GpsFix & Fix(void) {
     return _fix;
   };
 

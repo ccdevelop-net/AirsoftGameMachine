@@ -103,13 +103,14 @@ void Gps::Engine(void) {
 
   // Thread loop
   while(_threadRunning) {
-    gpsData = serial.ReadLine();
-
-    if (gpsData.length() > 0) {
-#if DEBUG_GPS
-      std::cout << Utility::Trim(gpsData) << std::endl;
-#endif  // DEBUG_GPS
+    // Loop available serial data
+    while (_nema.Available(serial)) {
+      _fix = _nema.Read();
     }
+
+#if DEBUG_GPS
+    std::cout << Utility::Trim(gpsData) << std::endl;
+#endif  // DEBUG_GPS
 
     std::this_thread::sleep_for(100ms);
   }

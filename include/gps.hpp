@@ -35,6 +35,8 @@
 #include <cstring>
 #include <thread>
 
+#include <neo/gps-nema.hpp>
+
 namespace Airsoft {
 
 class Gps final {
@@ -57,12 +59,23 @@ public:
     return _ready;
   }
 
-private:
-  std::thread * _process {};      // Pointer to thread
-  bool          _threadRunning {};         // Running flag for thread
-  std::string   _port;
+  inline Airsoft::Neo::GpsFix & Data(void) {
+    return _fix;
+  }
 
-  bool          _ready {};
+private:
+  std::thread     *       _process {};          // Pointer to thread
+  bool                    _threadRunning {};    // Running flag for thread
+  std::string             _port;
+
+  bool                    _ready {};
+
+  Airsoft::Neo::GpsNema   _nema;                // Gps Nema string parser
+
+  //  Define a set of GPS fix information.  It will
+  //  hold on to the various pieces as they are received from
+  //  an RMC sentence.  It can be used anywhere in your sketch.
+  Airsoft::Neo::GpsFix    _fix;
 
 private:
   void Engine(void);

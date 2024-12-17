@@ -18,10 +18,8 @@
 #include <neo/gps-nema.hpp>
 
 namespace Airsoft::Neo {
-//#include <Stream.h>
 
 // Check configurations
-
 #if defined( GPS_FIX_LOCATION_DMS ) & !defined( NMEAGPS_PARSING_SCRATCHPAD )
 // The fractional part of the NMEA minutes can have 5 significant figures.
 // This requires more temporary storage than is available in the DMS_t.
@@ -323,7 +321,7 @@ void GpsNema::StoreFix () {
 #if NMEAGPS_FIX_MAX > 0
     if (merging == MergingValue::EXPLICIT_MERGING) {
       // Accumulate all sentences
-      buffer[_currentFix] |= fix ();
+      buffer[_currentFix] |= Fix ();
     }
 #endif
 
@@ -348,7 +346,7 @@ void GpsNema::StoreFix () {
 #if NMEAGPS_FIX_MAX > 0
 
       if (merging != MergingValue::EXPLICIT_MERGING) {
-        buffer[_currentFix] = fix ();
+        buffer[_currentFix] = Fix ();
       }
 
       _currentFix++;

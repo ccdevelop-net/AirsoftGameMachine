@@ -54,6 +54,10 @@ public:
   std::string Name(void) override;
 
 private:
+  bool          _isStarted {};
+  bool          _start {};
+
+  uint16_t      _scrollPosition {};
 
 };
 

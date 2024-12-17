@@ -32,12 +32,20 @@
 #define CONFIG_HPP_
 
 #include <cstdint>
+#include <list>
 
 namespace Airsoft {
 
+struct Game {
+  std::string Name;
+
+};
+
 struct AsmConfiguration {
-  uint8_t AddressH;         // Wireless Address part high
-  uint8_t AddressL;         // Wireless Address part low
+  uint8_t         AddressH;         // Wireless Address part high
+  uint8_t         AddressL;         // Wireless Address part low
+
+  std::list<Game> Games;
 };
 
 extern AsmConfiguration   Configuration;
