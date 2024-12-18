@@ -91,22 +91,11 @@ void AirsoftManager::Terminate(void) {
 //-----------------------------------------------------------------------------
 bool AirsoftManager::LoadConfiguration(void) {
   // Function Variables
-  char folder[1024];
+  std::filesystem::path folder = std::filesystem::current_path();
 
-  // Get current folder
-  if (getcwd(folder, 1024) != nullptr) {
-    // print the current working directory
-    std::cout << "Current working directory: " << folder << std::endl;
-  } else {
-    // If _getcwd returns NULL, print an error message
-    std::cerr << "Error getting current working directory" << std::endl;
-    return false;
-  }
+  folder /= "airsoft/asm-config.cfg";
 
-  std::string configFile = folder;
-  configFile += "/airsoft/asm-config.cfg";
-
-  std::ifstream fconf(configFile.c_str());
+  std::ifstream fconf(folder.c_str());
   std::string line;
   while(std::getline(fconf, line)) {
     std::istringstream is_line(line);
@@ -137,7 +126,6 @@ static Airsoft::Drivers::Gpio * t_led {};
 void AirsoftManager::Engine(void) {
   // Thread Variables
   Airsoft::Classes::Timer ledTimer;
-  //int count = 0;
   Airsoft::Drivers::Gpio  led(Airsoft::Drivers::BANK_1, Airsoft::Drivers::GROUP_C, Airsoft::Drivers::ID_4);
 
   std::cout << "Engine Manager: Started." << std::endl;
