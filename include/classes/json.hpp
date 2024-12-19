@@ -68,7 +68,7 @@ public:
   Json(void) noexcept;
   Json(std::nullptr_t) noexcept;
   Json(double value);
-  Json(int value);
+  Json(int32_t value);
   Json(bool value);
   Json(const std::string &value);
   Json(std::string &&value);
@@ -83,11 +83,11 @@ public:
 
   // Implicit constructor: map-like objects (std::map, std::unordered_map, etc)
   template <class M, typename std::enable_if<std::is_constructible<std::string, decltype(std::declval<M>().begin()->first)>::value
-      && std::is_constructible<Json, decltype(std::declval<M>().begin()->second)>::value, int>::type = 0>
+      && std::is_constructible<Json, decltype(std::declval<M>().begin()->second)>::value, int32_t>::type = 0>
   Json(const M & m) : Json(object(m.begin(), m.end())) {}
 
   // Implicit constructor: vector-like objects (std::list, std::vector, std::set, etc)
-  template <class V, typename std::enable_if<std::is_constructible<Json, decltype(*std::declval<V>().begin())>::value, int>::type = 0>
+  template <class V, typename std::enable_if<std::is_constructible<Json, decltype(*std::declval<V>().begin())>::value, int32_t>::type = 0>
   Json(const V & v) : Json(array(v.begin(), v.end())) {}
 
   // This prevents Json(some_pointer) from accidentally producing a bool. Use
@@ -108,7 +108,7 @@ public:
   // distinguish between integer and non-integer numbers - number_value() and int_value()
   // can both be applied to a NUMBER-typed object.
   double number_value(void) const;
-  int int_value(void) const;
+  int32_t int_value(void) const;
 
   // Return the enclosed value if this is a boolean, false otherwise.
   bool bool_value(void) const;
@@ -133,21 +133,21 @@ public:
   }
 
   // Parse. If parse fails, return Json() and assign an error message to err.
-  static Json parse(const std::string & in, std::string & err, JsonParse strategy = JsonParse::STANDARD);
-  static Json parse(const char * in, std::string & err, JsonParse strategy = JsonParse::STANDARD) {
+  static Json Parse(const std::string & in, std::string & err, JsonParse strategy = JsonParse::STANDARD);
+  static Json Parse(const char * in, std::string & err, JsonParse strategy = JsonParse::STANDARD) {
     if (in) {
-      return parse(std::string(in), err, strategy);
+      return Parse(std::string(in), err, strategy);
     } else {
       err = "null input";
       return nullptr;
     }
   }
   // Parse multiple objects, concatenated or separated by whitespace
-  static std::vector<Json> parse_multi(const std::string & in, std::string::size_type & parser_stop_pos, std::string & err, JsonParse strategy = JsonParse::STANDARD);
+  static std::vector<Json> ParseMulti(const std::string & in, std::string::size_type & parser_stop_pos, std::string & err, JsonParse strategy = JsonParse::STANDARD);
 
-  static inline std::vector<Json> parse_multi(const std::string & in, std::string & err, JsonParse strategy = JsonParse::STANDARD) {
+  static inline std::vector<Json> ParseMulti(const std::string & in, std::string & err, JsonParse strategy = JsonParse::STANDARD) {
     std::string::size_type parser_stop_pos;
-    return parse_multi(in, parser_stop_pos, err, strategy);
+    return ParseMulti(in, parser_stop_pos, err, strategy);
   }
 
   bool operator== (const Json &rhs) const;
@@ -163,7 +163,7 @@ public:
    *         the given type. If not, return false and set err to a descriptive message.
    */
   typedef std::initializer_list<std::pair<std::string, Type>> shape;
-  bool has_shape(const shape & types, std::string & err) const;
+  bool HasShape(const shape & types, std::string & err) const;
 
 private:
   std::shared_ptr<JsonValue> m_ptr;
@@ -181,7 +181,7 @@ protected:
   virtual bool less(const JsonValue * other) const = 0;
   virtual void dump(std::string &out) const = 0;
   virtual double number_value(void) const;
-  virtual int int_value(void) const;
+  virtual int32_t int_value(void) const;
   virtual bool bool_value(void) const;
   virtual const std::string &string_value(void) const;
   virtual const JsonArray_t &array_items(void) const;
