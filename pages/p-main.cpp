@@ -47,6 +47,8 @@ void PMain::KeyHandle(const char key, const uint8_t keyCode) {
     if (key == '*') {
       _start = true;
     }
+  } else {
+
   }
 }
 //-----------------------------------------------------------------------------
@@ -58,8 +60,9 @@ void PMain::Periodic(void) {
     // Write welcome screen
     //                     "                    "
     _engine->Clean();
-    _engine->PrintAt(0, 2, "Selezionare Game    ");
-    _engine->PrintAt(0, 3, "Usare i tasti * e # ");
+    _engine->PrintAt(0, 1, ">       Games      <");
+    _engine->PrintAt(0, 2, "Use */# to select   ");
+    _engine->PrintAt(0, 3, "Press 'A' to confirm");
   }
 
   if (_isStarted) {

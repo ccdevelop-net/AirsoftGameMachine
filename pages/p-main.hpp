@@ -35,6 +35,10 @@
 
 namespace Airsoft::Pages {
 
+constexpr uint8_t NumOfMenuItems { 2 };
+constexpr uint8_t MenuItemLength { 25 };
+
+
 class PMain : public Airsoft::Templates::DisplayPage {
 public:
   PMain(void) = default;
@@ -54,11 +58,19 @@ public:
   std::string Name(void) override;
 
 private:
+
+private:
   bool          _isStarted {};
   bool          _start {};
 
   uint16_t      _scrollPosition {};
 
+  uint8_t       _selectedMenu {};
+
+  const char    _menuItems[NumOfMenuItems][MenuItemLength] = {
+      { ">       Games      <\0" },
+      { ">       Gps        <\0" }
+  };
 };
 
 } // namespace Airsoft::Pages
