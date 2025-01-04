@@ -1,14 +1,14 @@
 /**
  *******************************************************************************
- * @file p-main.hpp
+ * @file p-games.hpp
  *
- * @brief Main display page
+ * @brief Games page header file
  *
  * @author  Cristian Croci - ccdevelop.net
  *
  * @version 1.00
  *
- * @date Dec 12, 2024
+ * @date Dec 24, 2024
  *
  *******************************************************************************
  * This file is part of the Airsoft Game Machine project
@@ -28,21 +28,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************
  */
-#ifndef P_MAIN_HPP_
-#define P_MAIN_HPP_
+#ifndef P_GAMES_HPP_
+#define P_GAMES_HPP_
 
 #include <templates/display-page.hpp>
 
 namespace Airsoft::Pages {
 
-constexpr uint8_t NumOfMenuItems { 4 };
-constexpr uint8_t MenuItemLength { 25 };
-
-
-class PMain : public Airsoft::Templates::DisplayPage {
+class PGames : public Airsoft::Templates::DisplayPage {
 public:
-  PMain(void) = default;
-  virtual ~PMain(void) = default;
+  PGames(void) = default;
+  virtual ~PGames(void) = default;
 
 public:
   bool Load(Airsoft::Templates::DisplayEngine * engine) override;
@@ -57,22 +53,6 @@ public:
 
   std::string Name(void) override;
 
-private:
-
-private:
-  bool          _isStarted {};
-  bool          _start {};
-
-  uint16_t      _scrollPosition {};
-
-  uint8_t       _selectedMenu {};
-
-  const char    _menuItems[NumOfMenuItems][MenuItemLength] = {
-      { ">       Games      <\0" },
-      { ">        Gps       <\0" },
-      { ">   Test Outputs   <\0" },
-      { ">     Test Leds    <\0" }
-  };
 };
 
 } // namespace Airsoft::Pages
