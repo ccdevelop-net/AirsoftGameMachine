@@ -22,6 +22,7 @@ namespace Airsoft::Pages {
 constexpr uint32_t _periodicTime = 100;
 constexpr char     _scrollText[] = "                    Nemesis Softair Club Cantello                    \0";
 
+
 //-----------------------------------------------------------------------------
 bool PMain::Load(Airsoft::Templates::DisplayEngine * engine) {
   // Set Engine
