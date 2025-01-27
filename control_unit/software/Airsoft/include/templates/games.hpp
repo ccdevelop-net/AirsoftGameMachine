@@ -41,6 +41,8 @@ class DisplayPage;
 
 struct Game {
   std::string     Name;
+  std::string     Description;
+  int32_t         GameID;
   DisplayPage   * Page;
 };
 

@@ -30,10 +30,21 @@
  */
 #include <templates/display-page.hpp>
 #include <templates/display-engine.hpp>
+#include <templates/games.hpp>
 
 #include "p-games.hpp"
 
 namespace Airsoft::Pages {
+
+constexpr int32_t TIME_GAME                   = 1;
+constexpr int32_t RED_SCORPION_THE_REBIRTH    = 2;
+
+
+static Airsoft::Templates::Game games[] {
+  { "Time Game           ", "Simple time game    ",  TIME_GAME,                 nullptr },
+  { "Red S: The Rebirth  ", "Please see game book",  RED_SCORPION_THE_REBIRTH,  nullptr },
+  { "",                     "",                     -1,                         nullptr }
+};
 
 //======================================================================================================================
 // Implement DisplayPage Interface *************************************************************************************
@@ -49,13 +60,13 @@ bool PGames::Load(Airsoft::Templates::DisplayEngine * engine) {
   // Set Engine
   _engine = engine;
 
-  // Write welcome screen
+  // Clean screen
   _engine->Clean();
   //                     "                    "
-  _engine->PrintAt(0, 0, "Airsoft Game Machine");
-  _engine->PrintAt(0, 1, "         by         ");
-  _engine->PrintAt(0, 2, "   CCDevelop.NET    ");
-  _engine->PrintAt(0, 3, "Press '*' to start  ");
+  _engine->PrintAt(0, 0, "  Select the Game   ");
+  _engine->PrintAt(0, 1, "                    ");
+  _engine->PrintAt(0, 2, "                    ");
+  _engine->PrintAt(0, 3, "Press '*' to select ");
 
   return true;
 }
