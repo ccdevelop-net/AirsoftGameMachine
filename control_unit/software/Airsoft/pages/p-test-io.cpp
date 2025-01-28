@@ -52,10 +52,10 @@ bool PTestIO::Load(Airsoft::Templates::DisplayEngine * engine) {
   // Write welcome screen
   _engine->Clean();
   //                     "                    "
-  _engine->PrintAt(0, 0, "Airsoft Game Machine");
-  _engine->PrintAt(0, 1, "         by         ");
-  _engine->PrintAt(0, 2, "   CCDevelop.NET    ");
-  _engine->PrintAt(0, 3, "Press '*' to start  ");
+  _engine->PrintAt(0, 0, "     [Test IO]      ");
+  _engine->PrintAt(0, 1, " Press keys 1 to 6  ");
+  _engine->PrintAt(0, 2, "     for ON/OFF     ");
+  _engine->PrintAt(0, 3, "                    ");
 
   return true;
 }
@@ -65,7 +65,10 @@ void PTestIO::Refresh(void) {
 }
 //-----------------------------------------------------------------------------
 void PTestIO::KeyHandle(const char key, const uint8_t keyCode) {
-
+  // Return to previous Page
+  if (key == 'B') {
+    _engine->ActivatePage(nullptr);
+  }
 }
 //-----------------------------------------------------------------------------
 void PTestIO::Periodic(void) {

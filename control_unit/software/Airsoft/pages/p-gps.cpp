@@ -65,7 +65,10 @@ void PGps::Refresh(void) {
 }
 //-----------------------------------------------------------------------------
 void PGps::KeyHandle(const char key, const uint8_t keyCode) {
-
+  // Return to previous Page
+  if (key == 'B') {
+    _engine->ActivatePage(nullptr);
+  }
 }
 //-----------------------------------------------------------------------------
 void PGps::Periodic(void) {

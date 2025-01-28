@@ -10,6 +10,9 @@
 
 #include "p-main.hpp"
 #include "p-games.hpp"
+#include "p-gps.hpp"
+#include "p-test-led.hpp"
+#include "p-test-io.hpp"
 
 namespace Airsoft::Pages {
 
@@ -60,7 +63,20 @@ void PMain::KeyHandle(const char key, const uint8_t keyCode) {
         _selectedMenu = 0;
       }
     } else if (key == 'A') {
-      _engine->ActivatePage(new PGames());
+      switch(_menuItems) {
+        case 0:
+          _engine->ActivatePage(new PGames());
+          return;
+        case 1:
+          _engine->ActivatePage(new PGps());
+          return;
+        case 2:
+          _engine->ActivatePage(new PTestIO());
+          return;
+        case 3:
+          _engine->ActivatePage(new PTestLeds());
+          return;
+      }
     }
 
     if (selected) {
