@@ -53,6 +53,12 @@ public:
 
   std::string Name(void) override;
 
+private:
+  bool _releStatus[6] {};
+
+private:
+  void Reset(void);
+
 };
 
 } // namespace Airsoft::Pages

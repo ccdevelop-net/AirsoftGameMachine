@@ -53,6 +53,12 @@ public:
 
   std::string Name(void) override;
 
+private:
+  int8_t        _selectedGame {};
+
+private:
+  void SelectGame(Airsoft::Templates::Game * game);
+
 };
 
 } // namespace Airsoft::Pages

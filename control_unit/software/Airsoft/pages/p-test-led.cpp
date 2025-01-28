@@ -31,6 +31,8 @@
 #include <templates/display-page.hpp>
 #include <templates/display-engine.hpp>
 
+#include <inout.hpp>
+
 #include "p-test-led.hpp"
 
 namespace Airsoft::Pages {
@@ -52,10 +54,13 @@ bool PTestLeds::Load(Airsoft::Templates::DisplayEngine * engine) {
   // Write welcome screen
   _engine->Clean();
   //                     "                    "
-  _engine->PrintAt(0, 0, "     Test Leds      ");
-  _engine->PrintAt(0, 1, "                    ");
-  _engine->PrintAt(0, 2, "                    ");
+  _engine->PrintAt(0, 0, "    [Test Leds]     ");
+  _engine->PrintAt(0, 1, " Press keys 1 to 5  ");
+  _engine->PrintAt(0, 2, "     for ON/OFF     ");
   _engine->PrintAt(0, 3, "                    ");
+
+  // Reset Leds
+  Reset();
 
   return true;
 }
@@ -67,7 +72,32 @@ void PTestLeds::Refresh(void) {
 void PTestLeds::KeyHandle(const char key, const uint8_t keyCode) {
   // Return to previous Page
   if (key == 'B') {
+    // Reset Leds
+    Reset();
     _engine->ActivatePage(nullptr);
+  } else {
+    switch (key) {
+      case '1':
+        _ledStatus[LED1 - LED1] = !_ledStatus[LED1 - LED1];
+        InOut::Instance().Led(LED1, _ledStatus[LED1 - LED1]);
+        break;
+      case '2':
+        _ledStatus[LED1 - LED1] = !_ledStatus[LED2 - LED1];
+        InOut::Instance().Led(LED2, _ledStatus[LED2 - LED1]);
+        break;
+      case '3':
+        _ledStatus[LED1 - LED1] = !_ledStatus[LED3 - LED1];
+        InOut::Instance().Led(LED3, _ledStatus[LED3 - LED1]);
+        break;
+      case '4':
+        _ledStatus[LED1 - LED1] = !_ledStatus[LED4 - LED1];
+        InOut::Instance().Led(LED4, _ledStatus[LED4 - LED1]);
+        break;
+      case '5':
+        _ledStatus[LED1 - LED1] = !_ledStatus[LED5 - LED1];
+        InOut::Instance().Led(RELE5, _ledStatus[LED5 - LED1]);
+        break;
+    }
   }
 }
 //-----------------------------------------------------------------------------
@@ -81,6 +111,20 @@ uint32_t PTestLeds::PeriodicTime(void) const {
 //-----------------------------------------------------------------------------
 std::string PTestLeds::Name(void) {
   return "Test Leds";
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+void PTestLeds::Reset(void) {
+  // Reset array
+  memset(_ledStatus, 0x0, sizeof(_ledStatus));
+
+  // Reset Leds
+  InOut::Instance().Led(LED1, _ledStatus[LED1 - LED1]);
+  InOut::Instance().Led(LED2, _ledStatus[LED2 - LED1]);
+  InOut::Instance().Led(LED3, _ledStatus[LED3 - LED1]);
+  InOut::Instance().Led(LED4, _ledStatus[LED4 - LED1]);
+  InOut::Instance().Led(LED5, _ledStatus[LED5 - LED1]);
 }
 //-----------------------------------------------------------------------------
 

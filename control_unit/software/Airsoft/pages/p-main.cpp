@@ -55,7 +55,7 @@ void PMain::KeyHandle(const char key, const uint8_t keyCode) {
     bool selected {};
 
     if (key == '#') {
-      if (++_selectedMenu > NumOfMenuItems) {
+      if (++_selectedMenu >= NumOfMenuItems) {
         _selectedMenu = NumOfMenuItems - 1;
       }
     } else if (key == '*') {
@@ -63,7 +63,7 @@ void PMain::KeyHandle(const char key, const uint8_t keyCode) {
         _selectedMenu = 0;
       }
     } else if (key == 'A') {
-      switch(_menuItems) {
+      switch(_selectedMenu) {
         case 0:
           _engine->ActivatePage(new PGames());
           return;

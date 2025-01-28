@@ -31,6 +31,8 @@
 #include <templates/display-page.hpp>
 #include <templates/display-engine.hpp>
 
+#include <inout.hpp>
+
 #include "p-test-io.hpp"
 
 namespace Airsoft::Pages {
@@ -57,6 +59,9 @@ bool PTestIO::Load(Airsoft::Templates::DisplayEngine * engine) {
   _engine->PrintAt(0, 2, "     for ON/OFF     ");
   _engine->PrintAt(0, 3, "                    ");
 
+  // Reset Relè
+  Reset();
+
   return true;
 }
 //-----------------------------------------------------------------------------
@@ -67,7 +72,36 @@ void PTestIO::Refresh(void) {
 void PTestIO::KeyHandle(const char key, const uint8_t keyCode) {
   // Return to previous Page
   if (key == 'B') {
+    // Reset IO before exit
+    Reset();
     _engine->ActivatePage(nullptr);
+  } else {
+    switch (key) {
+      case '1':
+        _releStatus[RELE1 - RELE1] = !_releStatus[RELE1 - RELE1];
+        InOut::Instance().Rele(RELE1, _releStatus[RELE1 - RELE1]);
+        break;
+      case '2':
+        _releStatus[RELE2 - RELE1] = !_releStatus[RELE2 - RELE1];
+        InOut::Instance().Rele(RELE2, _releStatus[RELE2 - RELE1]);
+        break;
+      case '3':
+        _releStatus[RELE3 - RELE1] = !_releStatus[RELE3 - RELE1];
+        InOut::Instance().Rele(RELE3, _releStatus[RELE3 - RELE1]);
+        break;
+      case '4':
+        _releStatus[RELE4 - RELE1] = !_releStatus[RELE4 - RELE1];
+        InOut::Instance().Rele(RELE4, _releStatus[RELE4 - RELE1]);
+        break;
+      case '5':
+        _releStatus[RELE5 - RELE1] = !_releStatus[RELE5 - RELE1];
+        InOut::Instance().Rele(RELE5, _releStatus[RELE5 - RELE1]);
+        break;
+      case '6':
+        _releStatus[RELE6 - RELE1] = !_releStatus[RELE6 - RELE1];
+        InOut::Instance().Rele(RELE6, _releStatus[RELE6 - RELE1]);
+        break;
+    }
   }
 }
 //-----------------------------------------------------------------------------
@@ -81,6 +115,21 @@ uint32_t PTestIO::PeriodicTime(void) const {
 //-----------------------------------------------------------------------------
 std::string PTestIO::Name(void) {
   return "Test IOs";
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+void PTestIO::Reset(void) {
+  // Reset array
+  memset(_releStatus, 0x0, sizeof(_releStatus));
+
+  // Reset Relè
+  InOut::Instance().Rele(RELE1, _releStatus[RELE1 - RELE1]);
+  InOut::Instance().Rele(RELE2, _releStatus[RELE2 - RELE1]);
+  InOut::Instance().Rele(RELE3, _releStatus[RELE3 - RELE1]);
+  InOut::Instance().Rele(RELE4, _releStatus[RELE4 - RELE1]);
+  InOut::Instance().Rele(RELE5, _releStatus[RELE5 - RELE1]);
+  InOut::Instance().Rele(RELE6, _releStatus[RELE6 - RELE1]);
 }
 //-----------------------------------------------------------------------------
 
