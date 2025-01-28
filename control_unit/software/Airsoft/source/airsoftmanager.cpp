@@ -195,9 +195,16 @@ void AirsoftManager::Engine(void) {
 
     // Check if new page
     if (_newPageAvailable) {
-      _pages.push_back(_newPage);
-      _currentPage = _newPage;
+      if (_newPage == nullptr) {
+        delete _currentPage;
+        _currentPage = _pages.back();
+        _currentPage->Refresh();
+      } else {
+        _pages.push_back(_newPage);
+        _currentPage = _newPage;
+      }
       _newPageAvailable = false;
+
 
       continue;
     }

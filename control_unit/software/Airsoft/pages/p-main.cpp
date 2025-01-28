@@ -9,6 +9,7 @@
 #include <templates/display-engine.hpp>
 
 #include "p-main.hpp"
+#include "p-games.hpp"
 
 namespace Airsoft::Pages {
 
@@ -19,9 +20,8 @@ namespace Airsoft::Pages {
 /**
  * @brief Time for periodic function
  */
-constexpr uint32_t _periodicTime = 100;
-constexpr char     _scrollText[] = "                    Nemesis Softair Club Cantello                    \0";
-
+constexpr uint32_t      _periodicTime = 100;
+constexpr char          _scrollText[] = "                    Nemesis Softair Club Cantello                    \0";
 
 //-----------------------------------------------------------------------------
 bool PMain::Load(Airsoft::Templates::DisplayEngine * engine) {
@@ -49,7 +49,23 @@ void PMain::KeyHandle(const char key, const uint8_t keyCode) {
       _start = true;
     }
   } else {
+    bool selected {};
 
+    if (key == '#') {
+      if (++_selectedMenu > NumOfMenuItems) {
+        _selectedMenu = NumOfMenuItems - 1;
+      }
+    } else if (key == '*') {
+      if (--_selectedMenu < 0) {
+        _selectedMenu = 0;
+      }
+    } else if (key == 'A') {
+      _engine->ActivatePage(new PGames());
+    }
+
+    if (selected) {
+      _engine->PrintAt(0, 1, _menuItems[_selectedMenu]);
+    }
   }
 }
 //-----------------------------------------------------------------------------
