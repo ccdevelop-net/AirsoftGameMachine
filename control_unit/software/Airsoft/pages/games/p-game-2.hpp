@@ -35,6 +35,19 @@
 
 namespace Airsoft::Pages::Games {
 
+struct CodeSequences {
+  std::string     passCode;
+  std::string     sequenceName;
+};
+
+constexpr uint8_t PG2_NUM_OF_SEQUENCES = 4;
+
+constexpr uint8_t PG2_SETUP_TIME = 1;
+constexpr uint8_t PG2_NUM_OF_RETRY = 2;
+constexpr uint8_t PG2_READY = 3;
+constexpr uint8_t PG2_RUNNING = 4;
+
+
 class PGame2 : public Airsoft::Templates::DisplayPage {
 public:
   PGame2(void) = default;
@@ -56,6 +69,29 @@ public:
 private:
   bool      _running {};
 
+  uint32_t      _gameTimeMinutes { 240 };
+  uint32_t      _codeRetry { 3 };
+  uint32_t      _sequenceTimeSeconds { 180 };
+
+  uint32_t      _coutdown {};
+  uint32_t      _coutdownSequence {};
+  uint8_t       _numOfRetry {};
+  uint8_t       _currentSequence {};
+  std::string   _code;
+
+  uint8_t       _programStep { PG2_SETUP_TIME };
+
+
+  CodeSequences _sequences[PG2_NUM_OF_SEQUENCES] {
+    { "9035", "Alpha"   },
+    { "5039", "Charlie" },
+    { "3095", "Yenkee"  },
+    { "0953", "Zulu"    }
+  };
+
+private:
+  void UpdateRow(uint8_t row, const char * str);
+  void TerminateGame(void);
 };
 
 } // namespace Airsoft::Pages::Games

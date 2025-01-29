@@ -32,6 +32,7 @@
 #define P_GAMES_HPP_
 
 #include <templates/display-page.hpp>
+#include <templates/games.hpp>
 
 namespace Airsoft::Pages {
 

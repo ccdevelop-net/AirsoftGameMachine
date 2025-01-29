@@ -50,6 +50,7 @@ public:
   static std::string TrimRight(const std::string& str);
   static std::string Trim(const std::string & source);
   static uint64_t TimeSinceEpochMillisec(void);
+  static std::string CalculateHMS(uint32_t time);
 };
 
 }

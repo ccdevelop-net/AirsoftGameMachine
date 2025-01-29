@@ -53,5 +53,16 @@ uint64_t Utility::TimeSinceEpochMillisec(void) {
   using namespace std::chrono;
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
+//-----------------------------------------------------------------------------
+std::string Utility::CalculateHMS(uint32_t time) {
+  // Function Variables
+  uint8_t seconds { static_cast<uint8_t>(time % 60) };
+  uint8_t minutes { static_cast<uint8_t>(((time - seconds) / 60) % 60) };
+  uint8_t hours   { static_cast<uint8_t>((time - ((minutes * 60) + seconds)) / 3600) };
+  char calcTime[15];
+  sprintf(calcTime, "%02u:%02u:%02u", hours, minutes, seconds);
+  return calcTime;
+}
+//-----------------------------------------------------------------------------
 
 }

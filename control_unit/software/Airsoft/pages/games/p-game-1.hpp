@@ -35,6 +35,9 @@
 
 namespace Airsoft::Pages::Games {
 
+constexpr uint8_t PG1_SETUP_TIME = 1;
+constexpr uint8_t PG1_READY = 2;
+
 class PGame1 : public Airsoft::Templates::DisplayPage {
 public:
   PGame1(void) = default;
@@ -56,6 +59,10 @@ public:
 private:
   bool      _running {};
 
+  uint32_t  _gameTime {};
+  uint32_t  _coutdown {};
+
+  uint8_t   _programStep { PG1_SETUP_TIME };
 };
 
 } // namespace Airsoft::Pages::Games

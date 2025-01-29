@@ -66,7 +66,11 @@ void PGame1::Refresh(void) {
 }
 //-----------------------------------------------------------------------------
 void PGame1::KeyHandle(const char key, const uint8_t keyCode) {
+  if (key == 'B' && !_running) {
+    _engine->ActivatePage(nullptr);
+  } else {
 
+  }
 }
 //-----------------------------------------------------------------------------
 void PGame1::Periodic(void) {
