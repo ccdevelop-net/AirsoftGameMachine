@@ -31,6 +31,7 @@
 #ifndef CLASSES_TIMER_HPP_
 #define CLASSES_TIMER_HPP_
 
+#include <functional>
 #include <iostream>
 #include <thread>
 #include <chrono>

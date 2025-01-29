@@ -37,6 +37,12 @@
 
 namespace Airsoft::Templates {
 
+#define LED_SYSTEM_READY      LED1
+#define LED_SYSTEM_ARMED      LED2
+#define LED_SYSTEM_ACTIVE     LED3
+
+#define RELE_SYSTEM_SIREN     RELE1
+
 class DisplayPage;
 
 struct Game {

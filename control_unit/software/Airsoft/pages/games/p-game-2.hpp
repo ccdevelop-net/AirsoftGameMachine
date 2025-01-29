@@ -32,6 +32,7 @@
 #define P_GAME_2_HPP_
 
 #include <templates/display-page.hpp>
+#include <classes/timer.hpp>
 
 namespace Airsoft::Pages::Games {
 
@@ -39,6 +40,8 @@ struct CodeSequences {
   std::string     passCode;
   std::string     sequenceName;
 };
+
+constexpr uint8_t PG2_BACKLIGHT_ON_OFF = 60;
 
 constexpr uint8_t PG2_NUM_OF_SEQUENCES = 4;
 
@@ -76,10 +79,19 @@ private:
   uint32_t      _coutdown {};
   uint32_t      _coutdownSequence {};
   uint8_t       _numOfRetry {};
-  uint8_t       _currentSequence {};
+  uint32_t      _currentSequence {};
   std::string   _code;
 
   uint8_t       _programStep { PG2_SETUP_TIME };
+
+  uint32_t      _backlight {};
+
+  bool          _detonated {};
+
+
+
+  Airsoft::Classes::Timer _gameTime;
+  Airsoft::Classes::Timer _sequenceTime;
 
 
   CodeSequences _sequences[PG2_NUM_OF_SEQUENCES] {
@@ -92,6 +104,9 @@ private:
 private:
   void UpdateRow(uint8_t row, const char * str);
   void TerminateGame(void);
+
+  void CountDownTimer(void);
+  void SequenceTimer(void);
 };
 
 } // namespace Airsoft::Pages::Games

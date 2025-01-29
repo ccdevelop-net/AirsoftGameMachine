@@ -28,10 +28,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************
  */
+#include <functional>
 #include <templates/display-page.hpp>
 #include <templates/display-engine.hpp>
 #include <templates/games.hpp>
 #include <utility.hpp>
+#include <inout.hpp>
 
 #include "p-game-2.hpp"
 
@@ -71,6 +73,13 @@ void PGame2::Refresh(void) {
 }
 //-----------------------------------------------------------------------------
 void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
+  // Reset Backlight and switch On
+  if (_backlight > PG2_BACKLIGHT_ON_OFF) {
+    _engine->Backlight(Airsoft::Templates::DisplayStatus::On);
+  }
+  _backlight = 0;
+
+  // Select KEY
   if (key == 'B' && !_running) {
     _engine->ActivatePage(nullptr);
   } else {
@@ -112,17 +121,31 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
       }
       sprintf(dataDisplay, "%u", _gameTimeMinutes);
       UpdateRow(2, dataDisplay);
+
+      // System Ready
+      InOut::Instance().Led(LED_SYSTEM_READY, true);
     } else if (_programStep == PG2_READY) {
       if (key == 'A') {
         _programStep = PG2_RUNNING;
         _coutdown = _gameTimeMinutes * 60;
         _coutdownSequence = _sequenceTimeSeconds;
+
+
         UpdateRow(0, "   Game Running...   ");
         sprintf(dataDisplay, " %s - Retry: %u", Airsoft::Utility::CalculateHMS(_coutdown).c_str(), (_codeRetry - _numOfRetry));
         UpdateRow(1, dataDisplay);
         sprintf(dataDisplay, "Sequence: %s - %03u", _sequences[_currentSequence].sequenceName.c_str(), _coutdownSequence);
         UpdateRow(2, dataDisplay);
         UpdateRow(3, " Code: ");
+
+        // Start Timers
+        _gameTime.SetInterval(std::bind(&PGame2::CountDownTimer, this), 1000);
+        _sequenceTime.SetInterval(std::bind(&PGame2::SequenceTimer, this), 1000);
+
+        // System Armed
+        InOut::Instance().Led(LED_SYSTEM_READY, false);
+        InOut::Instance().Led(LED_SYSTEM_ARMED, true);
+
         _running = true;
       }
     } else if (_programStep == PG2_RUNNING) {
@@ -133,7 +156,11 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
             TerminateGame();
           }
         } else if (key == 'C') {
-          _code.clear();
+          if (_detonated) {
+            TerminateGame();;
+          } else {
+            _code.clear();
+          }
         }
       } else {
         if (_code.length() < 4) {
@@ -146,7 +173,22 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
 }
 //-----------------------------------------------------------------------------
 void PGame2::Periodic(void) {
+  if (_detonated) {
+    return;
+  }
 
+  if (_backlight++ > PG2_NUM_OF_SEQUENCES) {
+    _engine->Backlight(Airsoft::Templates::DisplayStatus::Off);
+  }
+
+  // Check if running
+  if (_running) {
+    char dataDisplay[21];
+    sprintf(dataDisplay, " %s - Retry: %u", Airsoft::Utility::CalculateHMS(_coutdown).c_str(), (_codeRetry - _numOfRetry));
+    UpdateRow(1, dataDisplay);
+    sprintf(dataDisplay, "Sequence: %s - %03u", _sequences[_currentSequence].sequenceName.c_str(), _coutdownSequence);
+    UpdateRow(2, dataDisplay);
+  }
 }
 //-----------------------------------------------------------------------------
 uint32_t PGame2::PeriodicTime(void) const {
@@ -159,12 +201,58 @@ std::string PGame2::Name(void) {
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+void PGame2::CountDownTimer(void) {
+  if (_coutdown == 0) {
+    _gameTime.Stop();
+    _sequenceTime.Stop();
+    InOut::Instance().Led(LED_SYSTEM_ARMED, false);
+    InOut::Instance().Led(LED_SYSTEM_ACTIVE, true);
+    InOut::Instance().Rele(RELE_SYSTEM_SIREN, true);
+
+    _detonated = true;
+    return;
+  }
+
+  _coutdown--;
+}
+//-----------------------------------------------------------------------------
+void PGame2::SequenceTimer(void) {
+  if (_coutdownSequence == 0) {
+    _coutdownSequence = _sequenceTimeSeconds;
+    if (_currentSequence + 1 < PG2_NUM_OF_SEQUENCES) {
+      _currentSequence++;
+    } else {
+      _currentSequence = 0;
+    }
+    return;
+  }
+
+  _coutdown--;
+
+}
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
 void PGame2::UpdateRow(uint8_t row, const char * str) {
   _engine->CleanRow(2);
   _engine->PrintAt(0, 2, str);
 }
 //-----------------------------------------------------------------------------
 void PGame2::TerminateGame(void) {
+  // Terminate Timers
+  _sequenceTime.Stop();
+  _gameTime.Stop();
+
+  // Reset all IO
+  InOut::Instance().Led(LED_SYSTEM_ARMED, false);
+  InOut::Instance().Led(LED_SYSTEM_ACTIVE, false);
+  InOut::Instance().Rele(RELE_SYSTEM_SIREN, false);
+
+  _detonated = false;
+
+  _running = false;
+
 }
 //-----------------------------------------------------------------------------
 
