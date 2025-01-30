@@ -78,24 +78,24 @@ void PTestLeds::KeyHandle(const char key, const uint8_t keyCode) {
   } else {
     switch (key) {
       case '1':
-        _ledStatus[LED1 - LED1] = !_ledStatus[LED1 - LED1];
-        InOut::Instance().Led(LED1, _ledStatus[LED1 - LED1]);
+        _ledStatus[LED1 - LED1] = !_ledStatus[LED1];
+        InOut::Instance().Led(LED1, _ledStatus[LED1]);
         break;
       case '2':
-        _ledStatus[LED1 - LED1] = !_ledStatus[LED2 - LED1];
-        InOut::Instance().Led(LED2, _ledStatus[LED2 - LED1]);
+        _ledStatus[LED2] = !_ledStatus[LED2];
+        InOut::Instance().Led(LED2, _ledStatus[LED2]);
         break;
       case '3':
-        _ledStatus[LED1 - LED1] = !_ledStatus[LED3 - LED1];
-        InOut::Instance().Led(LED3, _ledStatus[LED3 - LED1]);
+        _ledStatus[LED3] = !_ledStatus[LED3];
+        InOut::Instance().Led(LED3, _ledStatus[LED3]);
         break;
       case '4':
-        _ledStatus[LED1 - LED1] = !_ledStatus[LED4 - LED1];
-        InOut::Instance().Led(LED4, _ledStatus[LED4 - LED1]);
+        _ledStatus[LED4] = !_ledStatus[LED4];
+        InOut::Instance().Led(LED4, _ledStatus[LED4]);
         break;
       case '5':
-        _ledStatus[LED1 - LED1] = !_ledStatus[LED5 - LED1];
-        InOut::Instance().Led(RELE5, _ledStatus[LED5 - LED1]);
+        _ledStatus[LED5] = !_ledStatus[LED5];
+        InOut::Instance().Led(LED5, _ledStatus[LED5]);
         break;
     }
   }
@@ -120,11 +120,11 @@ void PTestLeds::Reset(void) {
   memset(_ledStatus, 0x0, sizeof(_ledStatus));
 
   // Reset Leds
-  InOut::Instance().Led(LED1, _ledStatus[LED1 - LED1]);
-  InOut::Instance().Led(LED2, _ledStatus[LED2 - LED1]);
-  InOut::Instance().Led(LED3, _ledStatus[LED3 - LED1]);
-  InOut::Instance().Led(LED4, _ledStatus[LED4 - LED1]);
-  InOut::Instance().Led(LED5, _ledStatus[LED5 - LED1]);
+  InOut::Instance().Led(LED1, _ledStatus[LED1]);
+  InOut::Instance().Led(LED2, _ledStatus[LED2]);
+  InOut::Instance().Led(LED3, _ledStatus[LED3]);
+  InOut::Instance().Led(LED4, _ledStatus[LED4]);
+  InOut::Instance().Led(LED5, _ledStatus[LED5]);
 }
 //-----------------------------------------------------------------------------
 

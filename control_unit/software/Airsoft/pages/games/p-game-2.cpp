@@ -59,7 +59,7 @@ bool PGame2::Load(Airsoft::Templates::DisplayEngine * engine) {
   _engine->PrintAt(0, 0, "   [The Rebirth]    ");
   _engine->PrintAt(0, 1, "Insert game time:   ");
   _engine->PrintAt(0, 2, "                    ");
-  _engine->PrintAt(0, 3, "Press '*' to select ");
+  _engine->PrintAt(0, 3, "Press 'A' for next  ");
 
   char data[21];
   sprintf(data, "%u min", _gameTimeMinutes);
@@ -74,33 +74,57 @@ void PGame2::Refresh(void) {
 //-----------------------------------------------------------------------------
 void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
   // Reset Backlight and switch On
-  if (_backlight > PG2_BACKLIGHT_ON_OFF) {
+  if (_backlight >= PG2_BACKLIGHT_ON_OFF) {
     _engine->Backlight(Airsoft::Templates::DisplayStatus::On);
   }
   _backlight = 0;
 
   // Select KEY
   if (key == 'B' && !_running) {
+    // Reset System Ready
+    InOut::Instance().Led(LED_SYSTEM_READY, false);
+
     _engine->ActivatePage(nullptr);
   } else {
     char dataDisplay[21];
 
     if (_programStep == PG2_SETUP_TIME) {
       if (key == '*') {
-        if (_gameTimeMinutes > 0) {
-          _gameTimeMinutes -= 30;
+        if (_gameTimeMinutes > 5) {
+          _gameTimeMinutes -= 5;
         }
       } else if (key == '#') {
         if (_gameTimeMinutes < 480) {
-          _gameTimeMinutes += 30;
+          _gameTimeMinutes += 5;
         }
       } else if (key == 'A') {
-        _programStep = PG2_NUM_OF_RETRY;
-        UpdateRow(1, "Number of retry:     ");
+        _programStep = PG2_TIME_SEQUENCE;
+        UpdateRow(1, "Time seq. change:");
+        sprintf(dataDisplay, "%u sec", _sequenceTimeSeconds);
+        UpdateRow(2, dataDisplay);
         return;
       }
 
       sprintf(dataDisplay, "%u min", _gameTimeMinutes);
+      UpdateRow(2, dataDisplay);
+    } else if (_programStep == PG2_TIME_SEQUENCE) {
+      if (key == '*') {
+        if (_sequenceTimeSeconds > 30) {
+          _sequenceTimeSeconds -= 30;
+        }
+      } else if (key == '#') {
+        if (_sequenceTimeSeconds < 600) {
+          _sequenceTimeSeconds += 30;
+        }
+      } else if (key == 'A') {
+        _programStep = PG2_NUM_OF_RETRY;
+        UpdateRow(1, "Number of retry:     ");
+        sprintf(dataDisplay, "%u", _codeRetry);
+        UpdateRow(2, dataDisplay);
+        return;
+      }
+
+      sprintf(dataDisplay, "%u sec", _sequenceTimeSeconds);
       UpdateRow(2, dataDisplay);
     } else if (_programStep == PG2_NUM_OF_RETRY) {
       if (key == '*') {
@@ -114,16 +138,17 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
       } else if (key == 'A') {
         _programStep = PG2_READY;
         UpdateRow(1, " Game ready to START ");
-        sprintf(dataDisplay, "Time: %u Retry: %u", _gameTimeMinutes, _numOfRetry);
+        sprintf(dataDisplay, "Time: %u Retry: %u", _gameTimeMinutes, (_codeRetry - _numOfRetry));
         UpdateRow(2, dataDisplay);
         UpdateRow(3, " Press 'A' to START  ");
+
+        // System Ready
+        InOut::Instance().Led(LED_SYSTEM_READY, true);
         return;
       }
-      sprintf(dataDisplay, "%u", _gameTimeMinutes);
+      sprintf(dataDisplay, "%u", _codeRetry);
       UpdateRow(2, dataDisplay);
 
-      // System Ready
-      InOut::Instance().Led(LED_SYSTEM_READY, true);
     } else if (_programStep == PG2_READY) {
       if (key == 'A') {
         _programStep = PG2_RUNNING;
@@ -134,7 +159,7 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
         UpdateRow(0, "   Game Running...   ");
         sprintf(dataDisplay, " %s - Retry: %u", Airsoft::Utility::CalculateHMS(_coutdown).c_str(), (_codeRetry - _numOfRetry));
         UpdateRow(1, dataDisplay);
-        sprintf(dataDisplay, "Sequence: %s - %03u", _sequences[_currentSequence].sequenceName.c_str(), _coutdownSequence);
+        sprintf(dataDisplay, "Seq: %s - %03u", _sequences[_currentSequence].sequenceName.c_str(), _coutdownSequence);
         UpdateRow(2, dataDisplay);
         UpdateRow(3, " Code: ");
 
@@ -154,18 +179,38 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
         if (key == 'A') {
           if (_code == _sequences[_currentSequence].passCode) {
             TerminateGame();
+
+            _gameWin = true;
+
+            // Clean screen
+            _engine->Clean();
+            //                     "                    "
+            _engine->PrintAt(0, 0, "********************");
+            _engine->PrintAt(0, 1, "*  Congratulation  *");
+            _engine->PrintAt(0, 2, "*   YOU HAVE WIN   *");
+            _engine->PrintAt(0, 3, "********************");
+
+          } else {
+            if (_gameWin) {
+              return;
+            }
+
+            _numOfRetry++;
+            _code.clear();
+            UpdateRow(3, " Code: ");
           }
         } else if (key == 'C') {
           if (_detonated) {
-            TerminateGame();;
+            TerminateGame();
           } else {
             _code.clear();
           }
         }
       } else {
         if (_code.length() < 4) {
-          char kcode = key;
-          _code.append(&kcode);
+          _code += key;
+          sprintf(dataDisplay, " Code: %s", _code.c_str());
+          UpdateRow(3, dataDisplay);
         }
       }
     }
@@ -173,21 +218,44 @@ void PGame2::KeyHandle(const char key, const uint8_t keyCode) {
 }
 //-----------------------------------------------------------------------------
 void PGame2::Periodic(void) {
+  static bool first {};
+  static uint8_t refreshRunning {};
+
   if (_detonated) {
+
+
+    if (!first) {
+      first = true;
+      // Clean screen
+      _engine->Clean();
+      //                     "                    "
+      _engine->PrintAt(0, 0, "********************");
+      _engine->PrintAt(0, 1, "*     You have     *");
+      _engine->PrintAt(0, 2, "*     LOSE!!!!!    *");
+      _engine->PrintAt(0, 3, "********************");
+    }
+
     return;
+  } else {
+    first = false;
   }
 
-  if (_backlight++ > PG2_NUM_OF_SEQUENCES) {
+  if (_backlight == PG2_BACKLIGHT_ON_OFF) {
     _engine->Backlight(Airsoft::Templates::DisplayStatus::Off);
+  } else {
+    _backlight++;
   }
 
   // Check if running
   if (_running) {
-    char dataDisplay[21];
-    sprintf(dataDisplay, " %s - Retry: %u", Airsoft::Utility::CalculateHMS(_coutdown).c_str(), (_codeRetry - _numOfRetry));
-    UpdateRow(1, dataDisplay);
-    sprintf(dataDisplay, "Sequence: %s - %03u", _sequences[_currentSequence].sequenceName.c_str(), _coutdownSequence);
-    UpdateRow(2, dataDisplay);
+    if (++refreshRunning == 5) {
+      char dataDisplay[21];
+      sprintf(dataDisplay, " %s - Retry: %u", Airsoft::Utility::CalculateHMS(_coutdown).c_str(), (_codeRetry - _numOfRetry));
+      UpdateRow(1, dataDisplay);
+      sprintf(dataDisplay, "Seq: %s - %03u", _sequences[_currentSequence].sequenceName.c_str(), _coutdownSequence);
+      UpdateRow(2, dataDisplay);
+      refreshRunning = 0;
+    }
   }
 }
 //-----------------------------------------------------------------------------
@@ -202,14 +270,14 @@ std::string PGame2::Name(void) {
 
 //-----------------------------------------------------------------------------
 void PGame2::CountDownTimer(void) {
-  if (_coutdown == 0) {
-    _gameTime.Stop();
+  if (_coutdown == 0 || _numOfRetry == _codeRetry) {
     _sequenceTime.Stop();
     InOut::Instance().Led(LED_SYSTEM_ARMED, false);
     InOut::Instance().Led(LED_SYSTEM_ACTIVE, true);
     InOut::Instance().Rele(RELE_SYSTEM_SIREN, true);
 
     _detonated = true;
+    _gameTime.Stop();
     return;
   }
 
@@ -227,7 +295,7 @@ void PGame2::SequenceTimer(void) {
     return;
   }
 
-  _coutdown--;
+  _coutdownSequence--;
 
 }
 //-----------------------------------------------------------------------------
@@ -235,8 +303,8 @@ void PGame2::SequenceTimer(void) {
 
 //-----------------------------------------------------------------------------
 void PGame2::UpdateRow(uint8_t row, const char * str) {
-  _engine->CleanRow(2);
-  _engine->PrintAt(0, 2, str);
+  _engine->CleanRow(row);
+  _engine->PrintAt(0, row, str);
 }
 //-----------------------------------------------------------------------------
 void PGame2::TerminateGame(void) {

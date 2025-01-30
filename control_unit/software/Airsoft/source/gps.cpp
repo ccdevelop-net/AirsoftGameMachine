@@ -106,6 +106,8 @@ void Gps::Engine(void) {
     // Loop available serial data
     while (_nema.Available(serial)) {
       _fix = _nema.Read();
+
+      //if (_fix.valid == )
     }
 
 #if DEBUG_GPS

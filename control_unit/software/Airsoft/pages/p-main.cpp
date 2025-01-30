@@ -43,7 +43,14 @@ bool PMain::Load(Airsoft::Templates::DisplayEngine * engine) {
 }
 //-----------------------------------------------------------------------------
 void PMain::Refresh(void) {
+  // Write welcome screen
+  //                     "                    "
+  _engine->Clean();
+  _engine->PrintAt(0, 1, _menuItems[_selectedMenu]);
+  _engine->PrintAt(0, 2, "Use */# to select   ");
+  _engine->PrintAt(0, 3, "Press 'A' to confirm");
 
+  _scrollPosition = 0;
 }
 //-----------------------------------------------------------------------------
 void PMain::KeyHandle(const char key, const uint8_t keyCode) {
@@ -55,12 +62,14 @@ void PMain::KeyHandle(const char key, const uint8_t keyCode) {
     bool selected {};
 
     if (key == '#') {
-      if (++_selectedMenu >= NumOfMenuItems) {
-        _selectedMenu = NumOfMenuItems - 1;
+      if (_selectedMenu < NumOfMenuItems - 1) {
+        ++_selectedMenu;
+        selected = true;
       }
     } else if (key == '*') {
-      if (--_selectedMenu < 0) {
-        _selectedMenu = 0;
+      if (_selectedMenu > 0) {
+        --_selectedMenu;
+        selected = true;
       }
     } else if (key == 'A') {
       switch(_selectedMenu) {

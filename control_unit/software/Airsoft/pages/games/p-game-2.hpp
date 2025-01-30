@@ -41,14 +41,15 @@ struct CodeSequences {
   std::string     sequenceName;
 };
 
-constexpr uint8_t PG2_BACKLIGHT_ON_OFF = 60;
+constexpr uint32_t  PG2_BACKLIGHT_ON_OFF = 600;
 
-constexpr uint8_t PG2_NUM_OF_SEQUENCES = 4;
+constexpr uint8_t   PG2_NUM_OF_SEQUENCES = 4;
 
-constexpr uint8_t PG2_SETUP_TIME = 1;
-constexpr uint8_t PG2_NUM_OF_RETRY = 2;
-constexpr uint8_t PG2_READY = 3;
-constexpr uint8_t PG2_RUNNING = 4;
+constexpr uint8_t   PG2_SETUP_TIME = 1;
+constexpr uint8_t   PG2_NUM_OF_RETRY = 2;
+constexpr uint8_t   PG2_TIME_SEQUENCE = 3;
+constexpr uint8_t   PG2_READY = 4;
+constexpr uint8_t   PG2_RUNNING = 5;
 
 
 class PGame2 : public Airsoft::Templates::DisplayPage {
@@ -86,6 +87,7 @@ private:
 
   uint32_t      _backlight {};
 
+  bool          _gameWin {};
   bool          _detonated {};
 
 
@@ -95,10 +97,10 @@ private:
 
 
   CodeSequences _sequences[PG2_NUM_OF_SEQUENCES] {
-    { "9035", "Alpha"   },
-    { "5039", "Charlie" },
-    { "3095", "Yenkee"  },
-    { "0953", "Zulu"    }
+    { "9035", "Alpha   "   },
+    { "5039", "Bravo   " },
+    { "3095", "Charlie "  },
+    { "0953", "Delta   "    }
   };
 
 private:

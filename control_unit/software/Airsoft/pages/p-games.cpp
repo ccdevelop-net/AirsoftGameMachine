@@ -44,7 +44,6 @@ constexpr int32_t RED_SCORPION_THE_REBIRTH    = 2;
 static Airsoft::Templates::Game _games[] {
   { "Time Game           ", "Simple time game    ",  TIME_GAME,                 nullptr },
   { "Red S: The Rebirth  ", "Please see game book",  RED_SCORPION_THE_REBIRTH,  nullptr },
-  { "",                     "",                     -1,                         nullptr }
 };
 
 constexpr int8_t NO_OF_GAMES = sizeof(_games) / sizeof(Airsoft::Templates::Game);
@@ -63,19 +62,19 @@ bool PGames::Load(Airsoft::Templates::DisplayEngine * engine) {
   // Set Engine
   _engine = engine;
 
-  // Clean screen
-  _engine->Clean();
-  //                     "                    "
-  _engine->PrintAt(0, 0, "      [Games]       ");
-  _engine->PrintAt(0, 1, "  Select the Game   ");
-  _engine->PrintAt(0, 2, "                    ");
-  _engine->PrintAt(0, 3, "Press '*' to select ");
+  Refresh();
 
   return true;
 }
 //-----------------------------------------------------------------------------
 void PGames::Refresh(void) {
-
+  // Clean screen
+  _engine->Clean();
+  //                     "                    "
+  _engine->PrintAt(0, 0, "      [Games]       ");
+  _engine->PrintAt(0, 1, "  Select the Game   ");
+  _engine->PrintAt(0, 2, _games[_selectedGame].Name);
+  _engine->PrintAt(0, 3, "Press 'A' to select ");
 }
 //-----------------------------------------------------------------------------
 void PGames::KeyHandle(const char key, const uint8_t keyCode) {
@@ -86,12 +85,14 @@ void PGames::KeyHandle(const char key, const uint8_t keyCode) {
     bool selected {};
 
     if (key == '#') {
-      if (++_selectedGame >= NO_OF_GAMES) {
-        _selectedGame = NO_OF_GAMES - 1;
+      if (_selectedGame < NO_OF_GAMES - 1) {
+        ++_selectedGame;
+        selected = true;
       }
     } else if (key == '*') {
-      if (--_selectedGame < 0) {
-        _selectedGame = 0;
+      if (_selectedGame > 0) {
+        --_selectedGame;
+        selected = true;
       }
     } else if (key == 'A') {
       SelectGame(&_games[_selectedGame]);

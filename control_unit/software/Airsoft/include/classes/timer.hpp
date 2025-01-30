@@ -52,11 +52,47 @@ private:
   std::atomic_bool active = { true };
 
 public:
-  void SetTimeout(std::function<void()> function, int32_t delay);
-  void SetInterval(std::function<void()> function, int32_t interval);
-  void Stop();
-};
+  void SetTimeout(std::function<void()> function, int32_t delay) {
+    active = true;
 
+    std::thread t([=]() {
+      if(!active.load()) {
+        return;
+      }
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+
+      if(!active.load()) {
+        return;
+      }
+
+      function();
+    });
+
+    t.detach();
+  }
+
+  void SetInterval(std::function<void()> function, int32_t interval) {
+    active = true;
+    std::thread t([=]() {
+      while(active.load()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+
+        if(!active.load()) {
+          return;
+        }
+
+        function();
+      }
+    });
+    t.detach();
+  }
+
+  void Stop() {
+    active = false;
+  }
+};
+/*
 void Timer::SetTimeout(std::function<void()> function, int32_t delay) {
   active = true;
 
@@ -96,7 +132,7 @@ void Timer::SetInterval(std::function<void()> function, int32_t interval) {
 void Timer::Stop(void) {
   active = false;
 }
-
+*/
 } // namespace Airsoft::Classes
 
 #endif  // CLASSES_TIMER_HPP_

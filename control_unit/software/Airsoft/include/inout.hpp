@@ -45,39 +45,44 @@ namespace Airsoft {
 /**
  * @brief Address of GPIO Expander
  */
-constexpr uint8_t IO0__7_ADDR     = 0x26;     /** << Address of PCF8574 for IO 0 to 7    */
+constexpr uint8_t IO0_7_ADDR      = 0x26;     /** << Address of PCF8574 for IO 0 to 7    */
 constexpr uint8_t IO8_15_ADDR     = 0x20;     /** << Address of PCF8574 for IO 8 to 15   */
 constexpr uint8_t KEYBOARD_ADDR   = 0x23;     /** << Address of PCF8574 for keyboard 4x4 */
+
+// Board 1: 0 1 2 3 4 5 6 7 8 9
+//          R R R L L L L L - -
+// Board 2: 0 1 2 3 4 5 6 7 8 9
+//          - - - - - - - - - -
 
 /**
  * @brief Leds Mapping
  */
 constexpr uint8_t LED1_PIN  = 0x07;           /** << Pin assigned to led 1                    */
-constexpr uint8_t LED1_ADDR = IO0__7_ADDR;    /** << Address of associated expander for led 1 */
-constexpr uint8_t LED2_PIN  = 0x06;           /** << Pin assigned to led 2                    */
-constexpr uint8_t LED2_ADDR = IO0__7_ADDR;    /** << Address of associated expander for led 2 */
-constexpr uint8_t LED3_PIN  = 0x05;           /** << Pin assigned to led 3                    */
-constexpr uint8_t LED3_ADDR = IO0__7_ADDR;    /** << Address of associated expander for led 3 */
+constexpr uint8_t LED1_ADDR = IO0_7_ADDR;    /** << Address of associated expander for led 1 */
+constexpr uint8_t LED2_PIN  = 0x05;           /** << Pin assigned to led 2                    */
+constexpr uint8_t LED2_ADDR = IO0_7_ADDR;    /** << Address of associated expander for led 2 */
+constexpr uint8_t LED3_PIN  = 0x06;           /** << Pin assigned to led 3                    */
+constexpr uint8_t LED3_ADDR = IO0_7_ADDR;    /** << Address of associated expander for led 3 */
 constexpr uint8_t LED4_PIN  = 0x04;           /** << Pin assigned to led 4                    */
-constexpr uint8_t LED4_ADDR = IO0__7_ADDR;    /** << Address of associated expander for led 4 */
+constexpr uint8_t LED4_ADDR = IO0_7_ADDR;    /** << Address of associated expander for led 4 */
 constexpr uint8_t LED5_PIN  = 0x03;           /** << Pin assigned to led 5                    */
-constexpr uint8_t LED5_ADDR = IO0__7_ADDR;    /** << Address of associated expander for led 5 */
+constexpr uint8_t LED5_ADDR = IO0_7_ADDR;    /** << Address of associated expander for led 5 */
 
 /**
  * @brief Reles Mapping
  */
-constexpr uint8_t RELE1_PIN   = 0x02;
-constexpr uint8_t RELE1_ADDR  = IO0__7_ADDR;
-constexpr uint8_t RELE2_PIN   = 0x01;
-constexpr uint8_t RELE2_ADDR  = IO0__7_ADDR;
-constexpr uint8_t RELE3_PIN   = 0x00;
-constexpr uint8_t RELE3_ADDR  = IO0__7_ADDR;
-constexpr uint8_t RELE4_PIN   = 0x07;
-constexpr uint8_t RELE4_ADDR  = IO8_15_ADDR;
-constexpr uint8_t RELE5_PIN   = 0x06;
-constexpr uint8_t RELE5_ADDR  = IO8_15_ADDR;
-constexpr uint8_t RELE6_PIN   = 0x05;
-constexpr uint8_t RELE6_ADDR  = IO8_15_ADDR;
+constexpr uint8_t RELE1_PIN   = 0x03; //0x02;
+constexpr uint8_t RELE1_ADDR  = IO8_15_ADDR; //IO0__7_ADDR;
+constexpr uint8_t RELE2_PIN   = 0x05; //0x01;
+constexpr uint8_t RELE2_ADDR  = IO8_15_ADDR; //IO0__7_ADDR;
+constexpr uint8_t RELE3_PIN   = 0x04; //0x00;
+constexpr uint8_t RELE3_ADDR  = IO8_15_ADDR; //IO0__7_ADDR;
+constexpr uint8_t RELE4_PIN   = 0x02; //0x07;
+constexpr uint8_t RELE4_ADDR  = IO0_7_ADDR; //IO8_15_ADDR;
+constexpr uint8_t RELE5_PIN   = 0x01; //0x06;
+constexpr uint8_t RELE5_ADDR  = IO0_7_ADDR; //IO8_15_ADDR;
+constexpr uint8_t RELE6_PIN   = 0x00; //0x05;
+constexpr uint8_t RELE6_ADDR  = IO0_7_ADDR; //IO8_15_ADDR;
 
 // The IO board work with inverted logic
 constexpr bool ON   = false;

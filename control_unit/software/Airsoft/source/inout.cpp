@@ -83,7 +83,7 @@ void InOut::Led(uint8_t ledId, bool value) {
     return;
   }
 
-  ManageIo(&_map[ledId], value);
+  ManageIo(&_map[ledId], !value);
 }
 //------------------------------------------------------------------------------
 void InOut::Rele(uint8_t releId, bool value) {
@@ -91,7 +91,7 @@ void InOut::Rele(uint8_t releId, bool value) {
     return;
   }
 
-  ManageIo(&_map[releId], value);
+  ManageIo(&_map[releId], !value);
 }
 //------------------------------------------------------------------------------
 size_t InOut::KeysOnQueue(void) {
@@ -154,10 +154,10 @@ bool InOut::GetKeyFromQueue(char & key, uint8_t & keyCode) {
 void InOut::ManageIo(IOMap * map, bool value) {
   _wireLock.lock();
 
-  if (map->Address == IO0__7_ADDR) {
+  if (map->Address == IO0_7_ADDR) {
     _out0_7->Write(map->Pin, value);
     map->Value = value;
-  } else if (map->Address == IO0__7_ADDR) {
+  } else if (map->Address == IO8_15_ADDR) {
     _out8_15->Write(map->Pin, value);
     map->Value = value;
   }
@@ -184,13 +184,17 @@ void InOut::Engine(void) {
 
   // Initialize IO Drivers
   _keyboard = new Airsoft::Devices::I2CKeyPad(&wire, KEYBOARD_ADDR);
-  _out0_7 = new Airsoft::Devices::PCF8574(&wire, IO0__7_ADDR);
+  _out0_7 = new Airsoft::Devices::PCF8574(&wire, IO0_7_ADDR);
   _out8_15 = new Airsoft::Devices::PCF8574(&wire, IO8_15_ADDR);
 
   _wireLock.lock();
   _keyboard->Begin();
   _keyboard->LoadKeyMap(_keymap);
   _wireLock.unlock();
+
+  // Reset IOs
+  _out0_7->Write8(0xFF);
+  _out8_15->Write8(0xFF);
 
   // Set ready flag
   _ready = true;

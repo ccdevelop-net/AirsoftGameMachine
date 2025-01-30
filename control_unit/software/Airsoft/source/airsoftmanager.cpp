@@ -196,12 +196,19 @@ void AirsoftManager::Engine(void) {
     // Check if new page
     if (_newPageAvailable) {
       if (_newPage == nullptr) {
-        delete _currentPage;
+        Airsoft::Templates::DisplayPage * toErase { _currentPage };
+        _pages.remove(_currentPage);
         _currentPage = _pages.back();
+        delete toErase;
+
+        // Refresh Page
         _currentPage->Refresh();
       } else {
         _pages.push_back(_newPage);
         _currentPage = _newPage;
+
+        // Load Page
+        _currentPage->Load(this);
       }
       _newPageAvailable = false;
 
